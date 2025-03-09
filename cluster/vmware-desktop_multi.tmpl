@@ -1,0 +1,41 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "{{ .Provider.BoxName }}"
+  config.vm.box_check_update = true
+
+  {{- range .LeadControlNode }}
+  config.vm.define "{{ .Name }}" do |lcn|
+    lcn.vm.hostname = "{{ .Name }}"
+    lcn.vm.network "private_network", ip: "{{ .IpAddress }}", vmware_desktop__vmnet: "{{ .Provider.VmNet }}"
+
+    lcn.vm.provider "vmware_desktop" do |v|
+      v.gui = false
+      v.memory = {{ .Memory }}
+      v.cpus = {{ .Cpu }}
+    end
+  end
+  {{- end }}
+
+  {{- range .ControlNodes }}
+  config.vm.define "{{ .Name }}" do |cn|
+    cn.vm.hostname = "{{ .Name }}"
+    cn.vm.network = "private_network", ip: "{{ .IpAddress }}", vmware_desktop__vmnet: "{{ .Provider.VmNet }}"
+    
+    cn.vm.provider "vmware_desktop" do |v|
+      v.gui = false
+      v.memory = {{ .Memory }}
+      v.cpus = {{ .Cpu }}
+    end
+  end
+  {{- end }}
+
+  {{- range .WorkerNodes }}
+  config.vm.define "{{ .Name }}" do |wn|
+    w.vm.hostname = "{{ .Name }}"
+    w.vm.network = "private_network", ip: "{{ .IpAddress }}", vmware_desktop__vmnet: "{{ .Provider.VmNet }}"
+
+    w.gui = false
+    w.memory = {{ .Memory }}
+    w.cpus = {{ .Cpu }}
+  end
+  {{- end }}
+end
