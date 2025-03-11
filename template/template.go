@@ -1,0 +1,64 @@
+package template
+
+import (
+	"bytes"
+	"embed"
+	"text/template"
+
+	"github.com/dgutierrez1287/local-kube/logger"
+)
+
+//go:embed provision/*
+var provisionTemplatesFS  embed.FS
+
+//go:embed vagrantfiles/*
+var vagrantfileTemplatesFS embed.FS
+
+func RenderProvisionTemplate(name string, data interface{}) (string, error) {
+  templateName := name + ".tmpl"
+
+  content, err := provisionTemplatesFS.ReadFile(templateName)
+  if err != nil {
+    logger.Logger.Error("Error reading provision template", "template", templateName)
+    return "", err
+  }
+
+  tmpl, err := template.New(templateName).Parse(string(content))
+  if err != nil {
+    logger.Logger.Error("Error parsing provision template", "template", templateName)
+    return "", err
+  }
+
+  var result bytes.Buffer
+  if err := tmpl.Execute(&result, data); err != nil {
+    logger.Logger.Error("Error rendering provision template", "template", templateName)
+    return "", err
+  }
+
+  return result.String(), nil
+}
+
+func RenderVagrantfileTemplate(name string, providerType string, clusterType string, data interface{}) (string, error) {
+  templateName := providerType + "-" + clusterType + ".tmpl"
+
+  content, err := vagrantfileTemplatesFS.ReadFile(templateName)
+  if err != nil {
+    logger.Logger.Error("Error reading vagrantfile template", "template", templateName)
+    return "", err
+  }
+
+  tmpl, err := template.New(templateName).Parse(string(content))
+  if err != nil {
+    logger.Logger.Error("Error parsing vagrantfile template", "template", templateName)
+    return "", err
+  }
+
+  var result bytes.Buffer
+  if err := tmpl.Execute(&result, data); err != nil {
+    logger.Logger.Error("Error rendering vagrantfile template", "template", templateName)
+    return "", err
+  }
+
+  return result.String(), nil
+}
+
