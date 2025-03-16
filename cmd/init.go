@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/dgutierrez1287/local-kube/logger"
+	"github.com/dgutierrez1287/local-kube/settings"
 	"github.com/dgutierrez1287/local-kube/util"
-  "github.com/dgutierrez1287/local-kube/settings"
 	"github.com/spf13/cobra"
 )
 
@@ -19,18 +21,41 @@ var initCmd = &cobra.Command {
 
     logger.Logger.Info("Running initialization")
 
-    dirExists := settings.AppDirExists()
-    settingsExists := settings.SettingsFileExists()
+    logger.Logger.Debug("Getting app directory paths")
+    appDir := settings.GetAppDirPath()
+    ansibleRoleDir := filepath.Join(appDir, "ansible-roles")
+
+    logger.Logger.Debug("Checking if the directories and settings exist")
+    appDirExists := settings.DirectoryExists(appDir)
+    ansibleRoleDirExists := settings.DirectoryExists(ansibleRoleDir)
     var alreadyInit bool
 
-    if dirExists {
-      logger.Logger.Debug("App dir already exists")
+    // Top application directory
+    if appDirExists {
+      logger.Logger.Debug("App directory already exists")
       alreadyInit = true
     } else {
-      logger.Logger.Info("Creating app dir which will be at ~/.local-kube")
-      settings.CreateAppDir()
+      logger.Logger.Info("Creating app directory which will be at ~/.local-kube")
+      settings.CreateDirectory(appDir)
       alreadyInit = false
     }  
+
+    // ansible role directory
+    if ansibleRoleDirExists {
+      logger.Logger.Debug("Ansible role directory already exists")
+      alreadyInit = true
+    } else {
+      logger.Logger.Info("Creating ansible role directory")
+      settings.CreateDirectory(ansibleRoleDir)
+      alreadyInit = false
+    }
+
+    // Settings file
+    settingsExists, err := settings.SettingsFileExists()
+    if err != nil {
+      logger.Logger.Error("Error checking for the settings file")
+      os.Exit(100)
+    }
 
     if settingsExists {
       logger.Logger.Debug("Settings file already exists")

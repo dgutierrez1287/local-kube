@@ -12,7 +12,6 @@ import (
 
 var debug bool
 var logColorize bool
-var clusterName string
 
 var RootCmd = &cobra.Command{
   Use: "local-kube",
@@ -32,9 +31,6 @@ func Execute() error {
 }
 
 func init() {
-  // cluster name
-  RootCmd.PersistentFlags().StringVarP(&clusterName, "cluster", "c", "", "The cluster to run the action on")
-
   // debugging flag
   RootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "Enable debug output")
 
