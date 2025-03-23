@@ -1,2 +1,4 @@
 go.sum
 local-kube
+coverage.html
+coverage.out
