@@ -6,6 +6,7 @@ import (
 
 	"github.com/dgutierrez1287/local-kube/ansible"
 	"github.com/dgutierrez1287/local-kube/logger"
+	"github.com/dgutierrez1287/local-kube/settings"
 	"github.com/dgutierrez1287/local-kube/util"
 	"github.com/spf13/cobra"
 )
@@ -16,6 +17,8 @@ var roleCleanCmd = &cobra.Command{
   Long: "Cleans all roles and resets cache",
   Run: func(cmd *cobra.Command, args []string) {
     fmt.Println(util.TitleText)
+
+    appDir := settings.GetAppDirPath()
 
     logger.Logger.Info("Cleaning all roles and reseting cache")
     cacheExists, err := ansible.RoleCacheFileExists()
@@ -31,7 +34,7 @@ var roleCleanCmd = &cobra.Command{
 
     logger.Logger.Info("Deleted all downloaded ansible roles")
 
-    err = ansible.ClearRoles()
+    err = ansible.ClearRoles(appDir)
     if err != nil {
       logger.Logger.Error("There was an error clearing all the downloaded roles", "error", err)
       os.Exit(130)
