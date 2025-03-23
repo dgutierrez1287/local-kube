@@ -22,6 +22,7 @@ build:
 
 clean:
 	rm -f ./local-kube
+	rm -f coverage.out coverage.html
 
 install:
 	sudo cp -f ./local-kube ${INSTALL_DIR} && sudo chmod 777 ${INSTALL_DIR}/local-kube
@@ -31,3 +32,10 @@ uninstall:
 
 tidy:
 	go mod tidy
+
+test:
+	go test -v ./...
+
+coverage:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
