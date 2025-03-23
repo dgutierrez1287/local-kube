@@ -16,5 +16,7 @@ type ProvisionSettings struct {
 type AnsibleRole struct {
   LocationType string         `json:"locationType"`     // Role location type can be git or local
   Location string             `json:"location"`         // The local location or git repo for the role
-  GitBranch string            `json:"gitBranch"`        // The git branch or tag to use if the location is git
+  RefType string              `json:"gitRefType"`       // (branch or tag) the git refence to use
+  GitRef string               `json:"gitRef"`           // The git branch or tag to use 
 }
+
