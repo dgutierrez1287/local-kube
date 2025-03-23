@@ -1,20 +1,37 @@
 package settings
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/dgutierrez1287/local-kube/logger"
 )
 
+// Run basic checks to make sure init has been run and needed files
+// are there
+func PreflightCheck(appDir string) bool {
+  appDirExist := DirectoryExists(appDir)
+  ansibleRoleDirExist := DirectoryExists(filepath.Join(appDir, "ansible-roles"))
+  settingsExist, err := SettingsFileExists(appDir)
 
+  if err != nil {
+    logger.Logger.Error("Error checking if settings file exists", "error", err)
+    os.Exit(100)
+  }
 
-// Run basic checks to make sure init has been run and needed files 
-// are there 
-func PreflightCheck() bool {
-  dirExist := AppDirExists()
-  settingsExist := SettingsFileExists()
-
-  if !dirExist || !settingsExist {
-    logger.Logger.Error("Preflight check failed, app directory or settings file is missing, have you run Init?")
+  if !appDirExist {
+    logger.Logger.Error("Preflight check failed, app directory does not exist")
     return false
+  }
+
+  if !ansibleRoleDirExist {
+    logger.Logger.Error("Preflight check failed, ansible-role directory does not exist")
+    return false
+  }
+
+  if !settingsExist {
+    logger.Logger.Error("Preflight check failed, settings file does not exist")
+    return false 
   }
   return true
 }
