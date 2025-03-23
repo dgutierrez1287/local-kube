@@ -33,6 +33,9 @@ uninstall:
 tidy:
 	go mod tidy
 
+go-fmt:
+	go fmt -v ./...
+
 test:
 	go test -v ./...
 
