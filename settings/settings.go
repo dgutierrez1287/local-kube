@@ -19,9 +19,11 @@ type Settings struct {
   Clusters map[string]Cluster           `json:"clusters"`   // Clusters
 }
 
-//validate settings 
-// TODO: right now this will only validate the cluster 
-// name is in the settings more validation can be done later
+/* 
+validate settings
+TODO: right now this will only validate the cluster 
+ name is in the settings more validation can be done later
+*/
 func (settings *Settings) SettingsValid(clusterName string) bool {
   //validate cluster name is in settings
   if _, exists := settings.Clusters[clusterName]; exists {
@@ -33,39 +35,40 @@ func (settings *Settings) SettingsValid(clusterName string) bool {
   }
 }
 
-// Check if setting file exist
-func SettingsFileExists() bool {
-  appDir := GetAppDirPath()
+/*
+SettingsFileExists()
+Checks if the settings file exists or not
+*/
+func SettingsFileExists(appDir string) (bool, error) {
   settingsFilePath := filepath.Join(appDir, "settings.json")
-  var settingsExists bool
 
-  if _, err := os.Stat(settingsFilePath); err != nil {
-    if errors.Is(err, os.ErrNotExist) {
-      logger.Logger.Debug("Settings file does not exist")
-      settingsExists = false
-    } else {
-      logger.Logger.Error("Error checking if settings file exists")
-      os.Exit(120)
-    }
-  } else {
-    logger.Logger.Debug("Settings file exists")
-    settingsExists = true
+  _, err := os.Stat(settingsFilePath)
+
+  if errors.Is(err, os.ErrNotExist) {
+    logger.Logger.Debug("Settings file does not exist")
+    return false, nil
+  } else if err != nil {
+    logger.Logger.Error("Error checking if settings file exists")
+    return false, err
   }
-
-  return settingsExists
+  logger.Logger.Debug("Settings file exists")
+  return true,nil
 }
 
-// create a default settings file (mostly blank) with 
-// a couple known defaults filled in
-func CreateDefaultSettingsFile() {
-  appDir := GetAppDirPath()
+/*
+CreateDefaultSettingsFile()
+create a default settings file (mostly blank) with 
+a couple known defaults filled in
+*/
+func CreateDefaultSettingsFile(appDir string) error {
   settingsFile := filepath.Join(appDir, "settings.json")
 
   defaultAnsibleRoles := make(map[string]AnsibleRole)
   defaultAnsibleRoles["kube"] = AnsibleRole{
     LocationType: "git",
-    Location: "github.com/dgutierrez1287/ansible-role-kube",
-    GitBranch: "master",
+    Location: "https://github.com/dgutierrez1287/ansible-role-kube",
+    RefType: "branch",
+    GitRef: "master",
   }
 
   emptySettings := Settings{
@@ -81,8 +84,8 @@ func CreateDefaultSettingsFile() {
   logger.Logger.Debug("Creating new settings file")
   file, err := os.Create(settingsFile)
   if err != nil {
-    logger.Logger.Error("Error creating blank settings file", "error", err)
-    os.Exit(120)
+    logger.Logger.Error("Error creating blank settings file")
+    return err
   }
   defer file.Close()
 
@@ -91,36 +94,41 @@ func CreateDefaultSettingsFile() {
 
   logger.Logger.Debug("Writing default settings to file")
   if err := encoder.Encode(emptySettings); err != nil {
-    logger.Logger.Error("Error writing settings defaults to file", "error", err)
-    os.Exit(120)
+    logger.Logger.Error("Error writing settings defaults to file")
+    return err
   }
+  logger.Logger.Debug("Default settings file created successfully")
+  return nil 
 }
 
-// Read the settings file and return a settiings object
-func ReadSettingsFile() (Settings, error){
-  appDir := GetAppDirPath()
+/*
+ReadSettingsFile()
+Reads the settings file and returns a settings object
+this will contain all the settings in the settings file 
+*/
+func ReadSettingsFile(appDir string) (Settings, error){
   settingsFile := filepath.Join(appDir, "settings.json")
 
   file, err := os.Open(settingsFile) 
   if err != nil {
-    logger.Logger.Error("Error opening settings file", "error", err)
-    return Settings{}, errors.New("error opening settings")
+    logger.Logger.Error("Error opening settings file")
+    return Settings{}, err
   }
   defer file.Close()
 
   bytes, err := io.ReadAll(file)
   if err != nil {
-    logger.Logger.Error("Error reading settings file", "error", err)
-    return Settings{}, errors.New("error Reading Settings")
+    logger.Logger.Error("Error reading settings file")
+    return Settings{}, err
   }
 
   var settings Settings
   err = json.Unmarshal(bytes, &settings)
   if err != nil {
-    logger.Logger.Error("Error unmarshaling json to struct", "error", err)
-    return Settings{}, errors.New("error unmarshaling settings")
+    logger.Logger.Error("Error unmarshaling json to struct")
+    return Settings{}, err
   }
-
+  logger.Logger.Debug("Settings file read successfully")
   return settings, nil
 }
 
