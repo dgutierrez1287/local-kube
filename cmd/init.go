@@ -51,7 +51,7 @@ var initCmd = &cobra.Command {
     }
 
     // Settings file
-    settingsExists, err := settings.SettingsFileExists()
+    settingsExists, err := settings.SettingsFileExists(appDir)
     if err != nil {
       logger.Logger.Error("Error checking for the settings file")
       os.Exit(100)
@@ -62,7 +62,7 @@ var initCmd = &cobra.Command {
       alreadyInit = true
     } else {
       logger.Logger.Info("Creating default settings file")
-      settings.CreateDefaultSettingsFile()
+      settings.CreateDefaultSettingsFile(appDir)
       alreadyInit = false
     }
 
