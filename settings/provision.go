@@ -5,7 +5,7 @@ package settings
 */
 type ProvisionSettings struct {
   AnsibleVersion string                 `json:"ansibleVersion"`       // The version of ansible to use
-  AnsibleRoles map[string]AnsibleRole   `json:"ansibleRoles"`         // map of roles to use for ansible
+  AnsibleRoles map[string]AnsibleRole   `json:"ansibleRoles"`         // map of roles to download that can be used for clusters
   AnsibleCollections []string           `json:"ansibleCollections"`   // List of additional ansible collections to install 
 }
 
