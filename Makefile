@@ -39,6 +39,13 @@ go-fmt:
 test:
 	go test -v ./...
 
+test-package:
+	@if [ -z "${pkg}" ]; then \
+		echo "Usage: make test pkg=<package-name>"; \
+		exit 1; \
+	fi
+	go test -v ./${pkg}
+
 coverage:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
