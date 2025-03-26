@@ -4,11 +4,12 @@ package settings
   Cluster - Settings for a cluster
 */
 type Cluster struct {
-  Vip string          `json:"vip"`            // The vip for the kubernetes cluster
-  ClusterType string  `json:"clusterType"`    // (single or ha) the type of cluster
-  ProviderName string `json:"providerName"`   // The name of the provider that the cluster uses
-  Leaders []Machine   `json:"leaders"`        // a list of leader machines
-  Workers []Machine   `json:"workers"`        // a list of worker machines
+  Vip string                        `json:"vip,omitempty"`                // The vip for the kubernetes cluster
+  ClusterType string                `json:"clusterType,omitempty"`        // (single or ha) the type of cluster
+  ProviderName string               `json:"providerName,omitempty"`       // The name of the provider that the cluster uses
+  Leaders []Machine                 `json:"leaders"`                      // a list of leader machines
+  Workers []Machine                 `json:"workers"`                      // a list of worker machines
+  ClusterFeatures *ClusterFeatures   `json:"clusterFeatures,omitempty"`    // feature configuration only used if autoConfigre is true
 }
 
 /*
@@ -49,5 +50,13 @@ func (cluster Cluster) GetWorkerNodeNames() []string {
   return names
 }
 
+// check if the cluster is ha or not
+func (cluster Cluster) IsHA() bool {
+  if cluster.ClusterType == "ha" {
+    return true
+  } else {
+    return false
+  }
+}
 
 
