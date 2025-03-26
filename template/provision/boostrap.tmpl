@@ -30,9 +30,6 @@ sudo mkdir -p /usr/share/ansible/collections
 
 ## Install ansible module ##
 sudo ansible-galaxy collection install kubernetes.core -p /usr/share/ansible/collections
-{{- range .additionalAnsibleModules }}
-sudo ansible-galaxy collection install {{ . }} -p /usr/share/ansible/collections
-{{ end }}
 
 ## set up ansible ##
 # create roles dir

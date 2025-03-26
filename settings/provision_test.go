@@ -19,7 +19,6 @@ func TestProvisionSettingsInitialization(t *testing.T) {
 				GitRef:       "main",
 			},
 		},
-		AnsibleCollections: []string{"collection1", "collection2"},
 	}
 
 	// Validate the fields of the ProvisionSettings struct
@@ -29,7 +28,6 @@ func TestProvisionSettingsInitialization(t *testing.T) {
 	assert.Equal(t, "https://github.com/example/role1", provisionSettings.AnsibleRoles["role1"].Location)
 	assert.Equal(t, "branch", provisionSettings.AnsibleRoles["role1"].RefType)
 	assert.Equal(t, "main", provisionSettings.AnsibleRoles["role1"].GitRef)
-	assert.Equal(t, 2, len(provisionSettings.AnsibleCollections))
 }
 
 func TestProvisionSettingsDefaultValues(t *testing.T) {
@@ -39,7 +37,6 @@ func TestProvisionSettingsDefaultValues(t *testing.T) {
 	// Validate the default values of the fields
 	assert.Equal(t, "", provisionSettings.AnsibleVersion)
 	assert.Empty(t, provisionSettings.AnsibleRoles)
-	assert.Empty(t, provisionSettings.AnsibleCollections)
 }
 
 func TestProvisionSettingsJsonSerialization(t *testing.T) {
@@ -54,7 +51,6 @@ func TestProvisionSettingsJsonSerialization(t *testing.T) {
 				GitRef:       "main",
 			},
 		},
-		AnsibleCollections: []string{"collection1", "collection2"},
 	}
 
 	// Serialize to JSON
@@ -69,7 +65,6 @@ func TestProvisionSettingsJsonSerialization(t *testing.T) {
 	// Assert the values after unmarshaling
 	assert.Equal(t, provisionSettings.AnsibleVersion, deserializedProvisionSettings.AnsibleVersion)
 	assert.Equal(t, provisionSettings.AnsibleRoles, deserializedProvisionSettings.AnsibleRoles)
-	assert.Equal(t, provisionSettings.AnsibleCollections, deserializedProvisionSettings.AnsibleCollections)
 }
 
 func TestProvisionSettingsEmptyJsonSerialization(t *testing.T) {
@@ -88,7 +83,6 @@ func TestProvisionSettingsEmptyJsonSerialization(t *testing.T) {
 	// Assert the values after unmarshaling (they should be empty)
 	assert.Equal(t, provisionSettings.AnsibleVersion, deserializedProvisionSettings.AnsibleVersion)
 	assert.Empty(t, deserializedProvisionSettings.AnsibleRoles)
-	assert.Empty(t, deserializedProvisionSettings.AnsibleCollections)
 }
 
 func TestAnsibleRoleInitialization(t *testing.T) {
