@@ -21,7 +21,7 @@ var roleCleanCmd = &cobra.Command{
     appDir := settings.GetAppDirPath()
 
     logger.Logger.Info("Cleaning all roles and reseting cache")
-    cacheExists, err := ansible.RoleCacheFileExists()
+    cacheExists, err := ansible.RoleCacheFileExists(appDir)
     if err != nil {
       logger.Logger.Error("There was an error checking if the cache exists", "error", err)
       os.Exit(130)
@@ -43,7 +43,7 @@ var roleCleanCmd = &cobra.Command{
     logger.Logger.Info("Roles deleted successfully")
     logger.Logger.Info("Deleting the roles cache file")
 
-    err = ansible.RoleCacheFileDelete()
+    err = ansible.RoleCacheFileDelete(appDir)
     if err != nil {
       logger.Logger.Error("There was an error deleting the cache file", "error", err)
       os.Exit(130)
