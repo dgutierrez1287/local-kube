@@ -12,7 +12,7 @@ import (
 func GenerateAnsibleHostsFile(appDir string, clusterName string, clusterType string, secondaryControlNodes []string, workerNodes []string) error {
   var ansibleHostsContent []string
   clusterDir := filepath.Join(appDir, clusterName)
-  ansibleHostsFilePath := filepath.Join(clusterDir, "ansible", "resources", "ansible_hosts")
+  ansibleHostsFilePath := filepath.Join(clusterDir, "ansible", "resources")
 
   if clusterType == "single" {
     // since its a single node we only have the lead and only node that 
@@ -63,13 +63,12 @@ func GenerateAnsibleHostsFile(appDir string, clusterName string, clusterType str
   return nil
 }
 
-func RenderBootstrapScript(appDir string, clusterName string, ansibleVersion string, additionalCollections []string) error {
+func RenderBootstrapScript(appDir string, clusterName string, ansibleVersion string) error {
   scriptsDir := filepath.Join(appDir, clusterName, "scripts", "provision")
   boostrapScriptPath := filepath.Join(scriptsDir, "bootstrap.sh")
 
   templateData := map[string]interface{}{
     "ansibleVersion": ansibleVersion,
-    "additionalAnsibleModules": additionalCollections,
   }
 
   templateContent, err := template.RenderProvisionTemplate("bootstrap", templateData) 
