@@ -3,6 +3,7 @@ package template
 import (
 	"bytes"
 	"embed"
+	"io/fs"
 	"text/template"
 
 	"github.com/dgutierrez1287/local-kube/logger"
@@ -14,8 +15,16 @@ var provisionTemplatesFS  embed.FS
 //go:embed vagrantfiles/*
 var vagrantfileTemplatesFS embed.FS
 
+func GetProvisionFS() fs.FS {
+  return provisionTemplatesFS
+}
+
+func GetVagrantFS() fs.FS {
+  return vagrantfileTemplatesFS
+}
+
 func RenderProvisionTemplate(name string, data interface{}) (string, error) {
-  templateName := name + ".tmpl"
+  templateName := "provision/" + name + ".tmpl"
 
   content, err := provisionTemplatesFS.ReadFile(templateName)
   if err != nil {
