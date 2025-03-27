@@ -75,6 +75,11 @@ func TestCreateClusterDirs(t *testing.T) {
     assert.DirExists(t, dirPath)
   }
 
+  for _, dir := range variablesDirs {
+    dirPath := filepath.Join(util.MockAppDir, clusterName, "variables", dir)
+    assert.DirExists(t, dirPath)
+  }
+
   err = util.MockAppDirCleanup()
   assert.NoError(t, err)
 }

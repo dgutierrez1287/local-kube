@@ -20,6 +20,11 @@ var scriptsDirs = []string {
   "remote",
 }
 
+var variablesDirs = []string {
+  "dynamic",
+  "static",
+}
+
 var mainDirs = []string {
   "ansible",
   "scripts",
@@ -61,42 +66,52 @@ func CreateClusterDirs(appDir string, clusterName string) error {
   logger.Logger.Info("Cluster directory created", "cluster", clusterName)
 
   // create all the top level dirs in the cluster dir
-  for _, dir := range mainDirs {
-    dirPath := filepath.Join(clusterDir, dir)
-    err := os.Mkdir(dirPath, 0750)
-    if err != nil {
-      logger.Logger.Error("Error creating main directory", "directory", dirPath)
-      return err
-    }
-    logger.Logger.Debug("Main directory created", "cluster", clusterName, "directory", dirPath)
+  logger.Logger.Debug("Creating all main cluster directories")
+  err = createClusterSubDirs(clusterDir, mainDirs)
+  if err != nil {
+    logger.Logger.Error("Error creating main directories for cluster", "cluster", clusterName)
+    return err
   }
-  logger.Logger.Info("Main directories created", "cluster", clusterName)
 
   // create all the ansible directories
-  for _, dir := range ansibleDirs {
-    dirPath := filepath.Join(clusterDir, "ansible", dir)
-    err := os.Mkdir(dirPath, 0750)
-    if err != nil {
-      logger.Logger.Error("Error creating ansible directory", "directory", dirPath)
-      return err
-    }
-    logger.Logger.Debug("Ansible directory created", "cluster", clusterName, "directory", dirPath)
+  logger.Logger.Debug("Creating ansible sub directories")
+  err = createClusterSubDirs(filepath.Join(clusterDir, "ansible"), ansibleDirs)
+  if err != nil {
+    logger.Logger.Error("Error creating ansible directories for cluster", "cluster", clusterName)
+    return err
   }
-  logger.Logger.Info("Ansible directories created", "cluster", clusterName)
 
   // create all the script directories
-  for _, dir := range scriptsDirs {
-    dirPath := filepath.Join(clusterDir, "scripts", dir)
+  logger.Logger.Debug("Creating script sub directories")
+  err = createClusterSubDirs(filepath.Join(clusterDir, "scripts"), scriptsDirs)
+  if err != nil {
+    logger.Logger.Error("Error creating script directories for cluster", "cluster", clusterName)
+    return err
+  }
+
+  // create all playbook directories
+  logger.Logger.Debug("Creating variables sub directories")
+  err = createClusterSubDirs(filepath.Join(clusterDir, "variables"), variablesDirs)
+  if err != nil {
+    logger.Logger.Error("Error creating variables directories for cluster", "cluster", clusterName)
+    return err
+  }
+  return nil
+}
+
+func createClusterSubDirs(parentDir string, subDirs []string) error {
+  for _, dir := range subDirs {
+    logger.Logger.Debug("creating sub dir", "dir", dir, "parentDir", parentDir)
+    dirPath := filepath.Join(parentDir, dir)
+    
     err := os.Mkdir(dirPath, 0750)
     if err != nil {
-      logger.Logger.Error("Error creating script directory", "directory", dirPath)
+      logger.Logger.Error("Error creating sub dir", "path", dirPath)
       return err
     }
-    logger.Logger.Debug("Script directory created", "cluster", clusterName, "directory", dirPath)
+    logger.Logger.Debug("Sub directory created", "path", dirPath)
   }
-  logger.Logger.Info("Script directories created", "cluster", clusterName)
-
-  return nil
+  return nil 
 }
 
 // Deletes the cluster directory, this
