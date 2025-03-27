@@ -83,3 +83,10 @@ func TestRenderPlaybookSingleNodeCluster(t *testing.T) {
   assert.True(t, resultPlaybook.Become)
   assert.Equal(t, resultPlaybook.BecomeUser, "root")
 }
+
+func TestRenderPlaybookSingleNodeError(t *testing.T) {
+  clusterName := "test"
+
+  err := RenderPlaybook(util.MockAppDir, clusterName, "localhost", "single", "")
+  assert.Error(t, err)
+}
