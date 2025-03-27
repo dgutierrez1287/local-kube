@@ -12,7 +12,7 @@ import (
 func GenerateAnsibleHostsFile(appDir string, clusterName string, clusterType string, secondaryControlNodes []string, workerNodes []string) error {
   var ansibleHostsContent []string
   clusterDir := filepath.Join(appDir, clusterName)
-  ansibleHostsFilePath := filepath.Join(clusterDir, "ansible", "resources")
+  ansibleHostsFilePath := filepath.Join(clusterDir, "ansible", "resources", "hosts")
 
   if clusterType == "single" {
     // since its a single node we only have the lead and only node that 
