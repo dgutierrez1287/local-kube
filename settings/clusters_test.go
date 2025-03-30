@@ -66,3 +66,41 @@ func TestGetWorkerNodeNames_NoWorkers(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+func TestGetControlNodeIps(t *testing.T) {
+  cluster := Cluster {
+    Leaders: []Machine{
+			{Name: "leader1", IpAddress: "192.168.1.1", Memory: 4, Cpu: 2, DiskSize: "100GB"},
+			{Name: "leader2", IpAddress: "192.168.1.2", Memory: 4, Cpu: 2, DiskSize: "100GB"},
+			{Name: "leader3", IpAddress: "192.168.1.3", Memory: 4, Cpu: 2, DiskSize: "100GB"},
+		},
+  }
+
+  ips := cluster.GetControlNodeIps()
+
+  verificationArray := []string{
+    "192.168.1.1",
+    "192.168.1.2",
+    "192.168.1.3",
+  }
+
+  assert.Equal(t, ips, verificationArray)
+}
+
+func TestClusterHa(t *testing.T) {
+  cluster := Cluster {
+    ClusterType: "ha",
+  }
+
+  isHa := cluster.IsHA()
+  assert.True(t, isHa)
+}
+
+func TestClusterNotHa(t *testing.T) {
+  cluster := Cluster {
+    ClusterType: "single",
+  }
+
+  isHa := cluster.IsHA()
+  assert.False(t, isHa)
+}

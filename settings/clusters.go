@@ -50,6 +50,18 @@ func (cluster Cluster) GetWorkerNodeNames() []string {
   return names
 }
 
+// Gets a list of control node IPs 
+func (cluster Cluster) GetControlNodeIps() []string {
+  
+  ips := []string{}
+
+  for _, node := range cluster.Leaders {
+    ips = append(ips, node.IpAddress)
+  }
+
+  return ips
+}
+
 // check if the cluster is ha or not
 func (cluster Cluster) IsHA() bool {
   if cluster.ClusterType == "ha" {
