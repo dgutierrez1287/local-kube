@@ -20,11 +20,6 @@ var scriptsDirs = []string {
   "remote",
 }
 
-var variablesDirs = []string {
-  "dynamic",
-  "static",
-}
-
 var mainDirs = []string {
   "ansible",
   "scripts",
@@ -89,13 +84,6 @@ func CreateClusterDirs(appDir string, clusterName string) error {
     return err
   }
 
-  // create all playbook directories
-  logger.Logger.Debug("Creating variables sub directories")
-  err = createClusterSubDirs(filepath.Join(clusterDir, "variables"), variablesDirs)
-  if err != nil {
-    logger.Logger.Error("Error creating variables directories for cluster", "cluster", clusterName)
-    return err
-  }
   return nil
 }
 
