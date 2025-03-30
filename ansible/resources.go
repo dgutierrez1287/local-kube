@@ -7,8 +7,13 @@ import (
 
 	"github.com/dgutierrez1287/local-kube/logger"
 	"github.com/dgutierrez1287/local-kube/template"
+  "github.com/otiai10/copy"
 )
 
+/*
+   This will generate the ansible hosts file lead or single node will
+   always be localhost
+*/
 func GenerateAnsibleHostsFile(appDir string, clusterName string, clusterType string, secondaryControlNodes []string, workerNodes []string) error {
   var ansibleHostsContent []string
   clusterDir := filepath.Join(appDir, clusterName)
@@ -63,6 +68,10 @@ func GenerateAnsibleHostsFile(appDir string, clusterName string, clusterType str
   return nil
 }
 
+/*
+  This will render the bootstrap.sh script with the desired version of ansible,
+  this is the script that will be run to provision ansible on the lead or single node
+*/
 func RenderBootstrapScript(appDir string, clusterName string, ansibleVersion string) error {
   scriptsDir := filepath.Join(appDir, clusterName, "scripts", "provision")
   boostrapScriptPath := filepath.Join(scriptsDir, "bootstrap.sh")
@@ -83,4 +92,29 @@ func RenderBootstrapScript(appDir string, clusterName string, ansibleVersion str
     return err
   }
   return nil 
+}
+
+/*
+  This will copy ansible roles from the app wide role repository to the 
+  roles directory for the cluster for drive mapping to the ansible 
+  machine
+*/
+func CopyAnsibleRoles(appDir string, clusterName string, rolesNames []string) error {
+  appAnsibleRoleDir := filepath.Join(appDir, "ansible-roles")
+  clusterAnsibleRoleDir := filepath.Join(appDir, clusterName, "ansible", "roles")
+
+  logger.Logger.Debug("Copying ansible roles to cluster dir")
+  for _, roleName := range rolesNames {
+    logger.Logger.Debug("Copying role", "roleName", roleName)
+
+    src := filepath.Join(appAnsibleRoleDir, roleName)
+    dest := filepath.Join(clusterAnsibleRoleDir, roleName)
+    err := copy.Copy(src, dest)
+
+    if err != nil {
+      logger.Logger.Error("Error copying role to cluster", "role", roleName)
+      return err
+    }
+  }
+  return nil
 }
