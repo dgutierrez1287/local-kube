@@ -20,8 +20,8 @@ type ClusterFeatures struct {
   CniControllerVersion string       `json:"cniControllerVersion,omitempty"`       // The Cni Controller Version
   ManagedCniController bool         `json:"managedCniController,omitempty"`       // If Cni Controller should be installed
 
-  //Cillum specific 
-  CilliumCliVersion string          `json:"cillumCliVersion,omitempty"`           // the cillum cli version
+  //Cilium specific 
+  CiliumCliVersion string          `json:"cillumCliVersion,omitempty"`           // the cillum cli version
 
   // Ingress Controller
   IngressController string          `json:"ingressController,omitempty"`          // The ingress controller
@@ -44,11 +44,10 @@ var featuresDefaults = ClusterFeatures {
   CniController: "flannel",
   IngressController: "native-traefik",
   StorageController: "local-storage",
-  DisableDefaultMetrics: true,
 }
 
-var CilliumDefaultVersion = "1.16.4"
-var CilliumCliDefaultVersion = "0.16.22"
+var CiliumDefaultVersion = "1.16.4"
+var CiliumCliDefaultVersion = "0.16.22"
 var CalicoDefaultVersion = "3.25.0"
 var KubevipDefaultVersion = "0.5.0"
 var LonghornDefaultVersion = "1.8.0"
@@ -84,17 +83,17 @@ func (features *ClusterFeatures) SetDefaults(clusterType string, vip string) err
     logger.Logger.Debug("No cni controller supplied, setting default", "cni", featuresDefaults.CniController)
 
   } else {
-    if features.CniController == "cillium" {
+    if features.CniController == "cilium" {
       logger.Logger.Debug("Cni controller supplied", "controller", features.CniController, "managed", features.ManagedCniController)
 
       if features.CniControllerVersion == "" {
-        logger.Logger.Debug("Cni Controller version not set, using default", "controller", features.CniController, "version", CilliumDefaultVersion)
-        features.CniControllerVersion = CilliumDefaultVersion
+        logger.Logger.Debug("Cni Controller version not set, using default", "controller", features.CniController, "version", CiliumDefaultVersion)
+        features.CniControllerVersion = CiliumDefaultVersion
       }     
 
-      if features.CilliumCliVersion == "" {
-        logger.Logger.Debug("Cni is Cillium and cli version is not set, using default", "cliVersion", CilliumCliDefaultVersion)
-        features.CilliumCliVersion = CilliumCliDefaultVersion
+      if features.CiliumCliVersion == "" {
+        logger.Logger.Debug("Cni is Cilium and cli version is not set, using default", "cliVersion", CiliumCliDefaultVersion)
+        features.CiliumCliVersion = CiliumCliDefaultVersion
       }
 
     } else if features.CniController == "calico" {
@@ -123,6 +122,11 @@ func (features *ClusterFeatures) SetDefaults(clusterType string, vip string) err
     logger.Logger.Debug("No storage controller supplied, setting default", "storage", featuresDefaults.StorageController)
   } else {
     logger.Logger.Debug("Storage controller supplied", "controller", features.StorageController, "managed", features.ManagedStorageController)
+
+    if features.StorageControllerVersion == "" && features.StorageController == "longhorn"{
+      logger.Logger.Debug("No storage controller version supplied settings default")
+      features.StorageControllerVersion = LonghornDefaultVersion
+    }
   }
   return nil
 }
