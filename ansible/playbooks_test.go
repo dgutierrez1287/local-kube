@@ -34,8 +34,7 @@ func TestRenderPlaybookWorkerNode(t *testing.T) {
 
   // verify result
   resultVarsFiles := []string {
-    "/etc/ansible/vars/static/vars-static.yml",
-    "/etc/ansible/vars/dynamic/vars-dynamic-worker.yml",
+    "/etc/ansible/vars/vars-worker.yml",
   }
 
   resultPlayName := "multi node worker node playbook"
@@ -71,8 +70,7 @@ func TestRenderPlaybookSingleNodeCluster(t *testing.T) {
 
   // verify result
   resultVarsFiles := []string {
-    "/etc/ansible/vars/static/vars-static.yml",
-    "/etc/ansible/vars/dynamic/vars-dynamic.yml",
+    "/etc/ansible/vars/vars.yml",
   }
 
   resultPlayName := "single node cluster playbook"

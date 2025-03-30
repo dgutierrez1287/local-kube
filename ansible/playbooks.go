@@ -28,20 +28,20 @@ a playbook for a node type in an HA cluster
 func RenderPlaybook(appDir string, clusterName string, hosts string, clusterType string, nodeType string) error {
 
   var playName string
-  var dynamicVarsFileName string
+  var varsFileName string
   var playbookFileName string
 
   if clusterType == "ha" {
     logger.Logger.Debug("cluster is an ha cluster writing playbook for node type", "nodeType", nodeType)
 
     playName = fmt.Sprintf("multi node %s node playbook", nodeType)
-    dynamicVarsFileName = fmt.Sprintf("vars-dynamic-%s.yml", nodeType)
+    varsFileName = fmt.Sprintf("vars-%s.yml", nodeType)
     playbookFileName = fmt.Sprintf("%s-playbook.yml", nodeType)
   } else {
     logger.Logger.Debug("cluster is a single node writing playbook for single node cluster")
 
     playName = "single node cluster playbook"
-    dynamicVarsFileName = "vars-dynamic.yml"
+    varsFileName = "vars.yml"
     playbookFileName = "playbook.yml"
   }
 
@@ -52,8 +52,7 @@ func RenderPlaybook(appDir string, clusterName string, hosts string, clusterType
     Become: true,
     BecomeUser: "root",
     VarsFiles: []string {
-      "/etc/ansible/vars/static/vars-static.yml",
-      fmt.Sprintf("/etc/ansible/vars/dynamic/%s", dynamicVarsFileName),
+      fmt.Sprintf("/etc/ansible/vars/%s", varsFileName),
     },
     Roles: []string {
       "kube",
