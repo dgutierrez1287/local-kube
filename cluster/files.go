@@ -1,14 +1,17 @@
 package cluster
 
 import (
+	"os"
+	"path/filepath"
 
 	"github.com/dgutierrez1287/local-kube/ansible"
 	"github.com/dgutierrez1287/local-kube/logger"
 	"github.com/dgutierrez1287/local-kube/settings"
+	"github.com/dgutierrez1287/local-kube/static"
 )
 
 /*
-  Generates the ansible bootstrap script for the lead node, this 
+  Generates the ansible bootstrap script for the lead node, this
   will have the desired version of ansible on it. Also it will
   generate the ansible hosts file for the cluster (either ha or single node)
 */
@@ -153,7 +156,69 @@ func GenerateAnsibleVariables(appDir string, clusterName string, appSettings set
   return nil
 }
 
-func renderVagrantFile(clusterName string, appSettings settings.Settings) {
-  
+/*
+   This will copy all needed scripts to the cluster scripts directories that 
+   are needed for a given cluster
+*/
+func SetupStaticScripts(appDir string, clusterName string) error {
+  provisionScriptPath := filepath.Join(appDir, clusterName, "scripts", "provision")
+  remoteScriptPath := filepath.Join(appDir, clusterName, "scripts", "remote")
+
+  logger.Logger.Debug("Getting list of provision scripts to copy")
+  provisionScripts, err := static.ListProvisonScripts()
+
+  if err != nil {
+    logger.Logger.Error("Error getting list of provision scripts")
+    return err
+  }
+
+  for _, scriptName := range provisionScripts {
+    logger.Logger.Debug("Copying provision script", "name", scriptName)
+    scriptContent, err := static.ReadProvisionScriptFile(scriptName)
+
+    if err != nil {
+      logger.Logger.Error("Error getting provision script content", "name", scriptName)
+      return err
+    }
+
+    path := filepath.Join(provisionScriptPath, scriptName)
+    err = os.WriteFile(path, []byte(scriptContent), 0755)
+
+    if err != nil {
+      logger.Logger.Error("Error writing script file", "name", scriptName)
+      return err
+    }
+  }
+
+  logger.Logger.Debug("Getting list of remote scripts to copy")
+  remoteScripts, err := static.ListRemoteScripts()
+
+  if err != nil {
+    logger.Logger.Error("Error getting list of remote scripts")
+    return err
+  }
+
+  for _, scriptName := range remoteScripts {
+    logger.Logger.Debug("Copying remote script", "name", scriptName)
+    scriptContent, err := static.ReadRemoteScriptFile(scriptName)
+
+    if err != nil {
+      logger.Logger.Error("Error getting remote script content", "name", scriptName)
+      return err
+    }
+
+    path := filepath.Join(remoteScriptPath, scriptName)
+    err = os.WriteFile(path, []byte(scriptContent), 0755)
+
+    if err != nil {
+      logger.Logger.Error("Error writing script file", "name", scriptName)
+      return err
+    }
+  } 
+  return nil 
+}
+
+func renderVagrantFile(appDir string, clusterName string, appSettings settings.Settings) {
+
 }
 
