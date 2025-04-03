@@ -9,7 +9,7 @@ type Cluster struct {
   ProviderName string               `json:"providerName,omitempty"`       // The name of the provider that the cluster uses
   Leaders []Machine                 `json:"leaders"`                      // a list of leader machines
   Workers []Machine                 `json:"workers"`                      // a list of worker machines
-  ClusterFeatures *ClusterFeatures   `json:"clusterFeatures,omitempty"`    // feature configuration only used if autoConfigre is true
+  ClusterFeatures *ClusterFeatures  `json:"clusterFeatures,omitempty"`    // feature configuration only used if autoConfigre is true
 }
 
 /*
@@ -17,11 +17,11 @@ type Cluster struct {
   cluster
 */
 type Machine struct {
-  Name string         `json:"name"`       // The name of the machine
-  IpAddress string    `json:"ipAdress"`   // The IP address for the machine
-  Memory int          `json:"memory"`     // The memory for the machine
-  Cpu int             `json:"cpu"`        // The CPU setting for the machine
-  DiskSize string     `json:"diskSize"`   // The size of the primary disk
+  Name string         `json:"name" yaml:"name,omitempty"`           // The name of the machine
+  IpAddress string    `json:"ipAdress" yaml:"ip,omitempty"`         // The IP address for the machine
+  Memory int          `json:"memory" yaml:"memory,omitempty"`       // The memory for the machine
+  Cpu int             `json:"cpu" yaml:"cpus,omitempty"`             // The CPU setting for the machine
+  DiskSize string     `json:"diskSize" yaml:"disk_size,omitempty"`  // The size of the primary disk
 }
 
 // Gets a list of all but the first control node and returns
