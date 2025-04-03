@@ -25,6 +25,7 @@ var mainDirs = []string {
   "scripts",
   "kubeconfig",
   "resources",
+  "settings",
 }
 
 // check if the cluster dir exists
