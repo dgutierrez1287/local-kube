@@ -131,9 +131,24 @@ func GenerateVarsFile(appDir string, clusterName string, clusterType string,
   }
 
   path := filepath.Join(varsFilePath, fileName)
-  err = os.WriteFile(path, yamlData, 0755)
+  file, err := os.Create(path)
+
   if err != nil {
-    logger.Logger.Error("Error writing variable data to file")
+    logger.Logger.Error("Error creating vars file", "path", path)
+    return err
+  }
+
+  defer file.Close()
+
+  _, err = file.WriteString("---\n")
+  if err != nil {
+    logger.Logger.Error("Error writing the yaml doc start marker")
+    return err
+  }
+
+  _, err = file.Write(yamlData)
+  if err != nil {
+    logger.Logger.Error("Error writing out vars content to file")
     return err
   }
   return nil 
