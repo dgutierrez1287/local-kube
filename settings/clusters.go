@@ -18,9 +18,9 @@ type Cluster struct {
 */
 type Machine struct {
   Name string         `json:"name" yaml:"name,omitempty"`           // The name of the machine
-  IpAddress string    `json:"ipAdress" yaml:"ip,omitempty"`         // The IP address for the machine
+  IpAddress string    `json:"ipAddress" yaml:"ip,omitempty"`         // The IP address for the machine
   Memory int          `json:"memory" yaml:"memory,omitempty"`       // The memory for the machine
-  Cpu int             `json:"cpu" yaml:"cpus,omitempty"`             // The CPU setting for the machine
+  Cpu int             `json:"cpus" yaml:"cpus,omitempty"`             // The CPU setting for the machine
   DiskSize string     `json:"diskSize" yaml:"disk_size,omitempty"`  // The size of the primary disk
 }
 
@@ -34,7 +34,6 @@ func (cluster Cluster) GetSecondaryControlNodeNames() []string {
   for _, node := range secondaryControlNodes {
     names = append(names, node.Name)
   }
-  
   return names
 }
 
@@ -46,7 +45,6 @@ func (cluster Cluster) GetWorkerNodeNames() []string {
   for _, node := range cluster.Workers {
     names = append(names, node.Name)
   }
-
   return names
 }
 
@@ -58,7 +56,6 @@ func (cluster Cluster) GetControlNodeIps() []string {
   for _, node := range cluster.Leaders {
     ips = append(ips, node.IpAddress)
   }
-
   return ips
 }
 
