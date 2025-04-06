@@ -17,9 +17,9 @@ import (
 type ScriptSettings struct {
   ClusterName string                  `yaml:"cluster-name,omitempty"`
   ClusterVip string                   `yaml:"cluster-vip,omitempty"`
-  LeadNode []settings.Machine         `yaml:"lead-control-node,omitempty"`
-  ControlNodes []settings.Machine     `yaml:"control-nodes,omitempty"`
-  WorkerNodes []settings.Machine      `yaml:"workers,omitempty"`
+  LeadNode []settings.Machine         `yaml:"lead-control-node"`
+  ControlNodes []settings.Machine     `yaml:"control-nodes"`
+  WorkerNodes []settings.Machine      `yaml:"workers"`
   MachineSettings settings.Machine    `yaml:"machine_settings,omitempty"`
 }
   
