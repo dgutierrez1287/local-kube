@@ -171,7 +171,7 @@ func getGeneralVars(appSettings settings.Settings, haCluster bool,
   vars.IsLeadNode = isLeadNode
   vars.NodePurpose = nodePurpose
   vars.TlsSanAddresses = GetTlsSanList(cpNodes, features.KubeVipEnable, vip)
-  vars.ControlPlanList = GetControlPlaneList(cpNodes)
+  vars.ControlPlanList = GetControlPlaneList(cpNodes, appSettings.Clusters[clusterName].ClusterType)
   vars.CniController = features.CniController
   vars.IngressController = features.IngressController
   vars.StorageController = features.StorageController
@@ -258,6 +258,8 @@ func GetTlsSanList(leadNodes []settings.Machine, kubeVipEnabled bool, kubeVipIp 
   
   logger.Logger.Debug("Getting list of ips of control nodes")
   for _, node := range leadNodes {
+    logger.Logger.Debug("Processing node", "node", node)
+    logger.Logger.Debug("Adding node ip to san list", "ip", node.IpAddress)
     tlsSanIps = append(tlsSanIps, node.IpAddress)
   }
 
@@ -273,8 +275,12 @@ func GetTlsSanList(leadNodes []settings.Machine, kubeVipEnabled bool, kubeVipIp 
 /*
   Gets a list of control plane nodes
 */
-func GetControlPlaneList(leadNodes []settings.Machine) map[string]ControlNode {
+func GetControlPlaneList(leadNodes []settings.Machine, clusterType string) map[string]ControlNode {
   var cpList = make(map[string]ControlNode)
+
+  if clusterType == "single" {
+    return cpList
+  }
 
   for index, node := range leadNodes {
     if index == 0 {
