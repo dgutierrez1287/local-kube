@@ -8,6 +8,7 @@ import (
 	"github.com/dgutierrez1287/local-kube/logger"
 	"github.com/dgutierrez1287/local-kube/settings"
 	"github.com/dgutierrez1287/local-kube/static"
+	"github.com/dgutierrez1287/local-kube/template"
 )
 
 /*
@@ -218,7 +219,62 @@ func SetupStaticScripts(appDir string, clusterName string) error {
   return nil 
 }
 
-func renderVagrantFile(appDir string, clusterName string, appSettings settings.Settings) {
+/*
+  This will render gather needed data for a vagrant file template and will render 
+  the template and will write the result out to the cluster directory 
+*/
+func RenderVagrantFile(appDir string, clusterName string, appSettings settings.Settings) error {
+  providerName := appSettings.Clusters[clusterName].ProviderName
+  providerType := appSettings.Providers[providerName].ProviderType
+  clusterType := appSettings.Clusters[clusterName].ClusterType
 
+  vagrantFilePath := filepath.Join(appDir, clusterName, "VagrantFile")
+
+  logger.Logger.Debug("Getting data for VagrantFile rendering", "providerName", providerName, "providerType", providerType)
+  logger.Logger.Debug("VagrantFile path", "path", vagrantFilePath)
+
+  data := make(map[string]interface{})
+
+  data["Provider"] = appSettings.Providers[providerName]
+
+  logger.Logger.Debug("Provider settings", "settings", data["Provider"])
+
+  if clusterType == "ha" {
+    logger.Logger.Debug("Setting up vagrant template data for ha cluster")
+
+    var leadControlNode []settings.Machine 
+    leadControlNode = append(leadControlNode, appSettings.Clusters[clusterName].Leaders[0])
+
+    controlNodes := appSettings.Clusters[clusterName].Leaders[1:]
+    workerNodes := appSettings.Clusters[clusterName].Workers
+
+    data["LeadControlNode"] = leadControlNode
+    data["ControlNodes"] = controlNodes
+    data["WorkerNodes"] = workerNodes
+
+  } else {
+    logger.Logger.Debug("Setting up vagrant template data for single node cluster")
+
+    data["Node"] = appSettings.Clusters[clusterName].Leaders[0]
+    logger.Logger.Debug("Node values are", "node", data["Node"])
+  }
+
+  renderedVagrantFile, err := template.RenderVagrantfileTemplate(providerType, clusterType, data)
+
+  if err != nil {
+    logger.Logger.Error("Error rendering Vagrantfile")
+    return err
+  }
+
+  logger.Logger.Debug("Writing out vagrantfile to cluster directory")
+  err = os.WriteFile(vagrantFilePath, []byte(renderedVagrantFile), 0755)
+
+  if err != nil {
+    logger.Logger.Error("Error writing vagrantfile to location")
+    return err
+  }
+
+  return nil
 }
+
 
