@@ -23,13 +23,14 @@ func TestRenderPlaybookWorkerNode(t *testing.T) {
 
   err = RenderPlaybook(util.MockAppDir, clusterName, "worker-nodes", "ha", "worker")
   assert.NoError(t, err)
-  assert.FileExists(t, filepath.Join(util.MockAppDir, clusterName, "playbooks", "worker-playbook.yml"))
+  assert.FileExists(t, filepath.Join(util.MockAppDir, clusterName, "ansible", "playbooks", "worker-playbook.yml"))
 
-  yamlFile, err := os.ReadFile(filepath.Join(util.MockAppDir, clusterName, "playbooks", "worker-playbook.yml"))
+  yamlFile, err := os.ReadFile(filepath.Join(util.MockAppDir, clusterName, "ansible", "playbooks", "worker-playbook.yml"))
   assert.NoError(t, err)
 
   var resultPlaybook Playbook
   err = yaml.Unmarshal(yamlFile, &resultPlaybook)
+  play := resultPlaybook[0]
   assert.NoError(t, err)
 
   // verify result
@@ -39,11 +40,11 @@ func TestRenderPlaybookWorkerNode(t *testing.T) {
 
   resultPlayName := "multi node worker node playbook"
 
-  assert.Equal(t, resultPlaybook.Hosts, "worker-nodes")
-  assert.Equal(t, resultPlaybook.VarsFiles, resultVarsFiles)
-  assert.Equal(t, resultPlaybook.Name, resultPlayName)
-  assert.True(t, resultPlaybook.Become)
-  assert.Equal(t, resultPlaybook.BecomeUser, "root")
+  assert.Equal(t, play.Hosts, "worker-nodes")
+  assert.Equal(t, play.VarsFiles, resultVarsFiles)
+  assert.Equal(t, play.Name, resultPlayName)
+  assert.True(t, play.Become)
+  assert.Equal(t, play.BecomeUser, "root")
 }
 
 func TestRenderPlaybookSingleNodeCluster(t *testing.T) {
@@ -59,13 +60,14 @@ func TestRenderPlaybookSingleNodeCluster(t *testing.T) {
 
   err = RenderPlaybook(util.MockAppDir, clusterName, "localhost", "single", "")
   assert.NoError(t, err)
-  assert.FileExists(t, filepath.Join(util.MockAppDir, clusterName, "playbooks", "playbook.yml"))
+  assert.FileExists(t, filepath.Join(util.MockAppDir, clusterName, "ansible", "playbooks", "playbook.yml"))
 
-  yamlFile, err := os.ReadFile(filepath.Join(util.MockAppDir, clusterName, "playbooks", "playbook.yml"))
+  yamlFile, err := os.ReadFile(filepath.Join(util.MockAppDir, clusterName, "ansible", "playbooks", "playbook.yml"))
   assert.NoError(t, err)
 
   var resultPlaybook Playbook
   err = yaml.Unmarshal(yamlFile, &resultPlaybook)
+  play := resultPlaybook[0]
   assert.NoError(t, err)
 
   // verify result
@@ -75,11 +77,11 @@ func TestRenderPlaybookSingleNodeCluster(t *testing.T) {
 
   resultPlayName := "single node cluster playbook"
 
-  assert.Equal(t, resultPlaybook.Hosts, "localhost")
-  assert.Equal(t, resultPlaybook.VarsFiles, resultVarsFiles)
-  assert.Equal(t, resultPlaybook.Name, resultPlayName)
-  assert.True(t, resultPlaybook.Become)
-  assert.Equal(t, resultPlaybook.BecomeUser, "root")
+  assert.Equal(t, play.Hosts, "localhost")
+  assert.Equal(t, play.VarsFiles, resultVarsFiles)
+  assert.Equal(t, play.Name, resultPlayName)
+  assert.True(t, play.Become)
+  assert.Equal(t, play.BecomeUser, "root")
 }
 
 func TestRenderPlaybookSingleNodeError(t *testing.T) {
