@@ -47,7 +47,7 @@ func RenderProvisionTemplate(name string, data interface{}) (string, error) {
   return result.String(), nil
 }
 
-func RenderVagrantfileTemplate(name string, providerType string, clusterType string, data interface{}) (string, error) {
+func RenderVagrantfileTemplate(providerType string, clusterType string, data interface{}) (string, error) {
   templateName := "vagrantfiles/" + providerType + "-" + clusterType + ".tmpl"
 
   content, err := vagrantfileTemplatesFS.ReadFile(templateName)
