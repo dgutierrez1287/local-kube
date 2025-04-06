@@ -4,38 +4,133 @@ Vagrant.configure("2") do |config|
 
   {{- range .LeadControlNode }}
   config.vm.define "{{ .Name }}" do |lcn|
+    lcn.vm.disk :disk, size: "{{ .DiskSize }}", primary: true
+
     lcn.vm.hostname = "{{ .Name }}"
     lcn.vm.network "private_network", ip: "{{ .IpAddress }}", vmware_desktop__vmnet: "{{ .Provider.VmNet }}"
+
+    lcn.vm.synced_folder "ansible/roles", "/etc/ansible/roles",
+      disabled: false 
+
+    lcn.vm.synced_folder "ansible/variables", "/etc/ansible/vars",
+      disabled: false
+
+    lcn.vm.synced_folder "ansible/playbooks", "/etc/ansible/playbook",
+      disabled: false
+
+    lcn.vm.synced_folder "kubeconfig", "/vagrant/kubeconfig",
+      disabled: false
+
+    lcn.vm.synced_folder "scripts/provision", "/provision",
+      disabled: false
+
+    lcn.vm.synced_folder "scripts/remote", "/scripts",
+      disabled: false
+
+    lcn.vm.synced_folder "settings", "/vagrant/settings",
+      disabled: false
 
     lcn.vm.provider "vmware_desktop" do |v|
       v.gui = false
       v.memory = {{ .Memory }}
       v.cpus = {{ .Cpu }}
     end
+
+    lcn.vm.provision "shell", inline: <<-SHELL
+    apt update
+    apt upgrade -y
+
+    # expand the disk if needed
+    bash /provision/disk-expand.sh
+
+    # install yq (needed for some local scripts)
+    bash /provision/install-yq.sh
+
+    # bootstrap the system and install the needed version of ansible
+    bash /provision/ansible-bootstrap.sh
+
+    # set up /etc/hosts file to allow needed connections to other machines
+    bash /provision/setup-hostsfile.sh
+
+    SHELL
   end
   {{- end }}
 
   {{- range .ControlNodes }}
   config.vm.define "{{ .Name }}" do |cn|
+    cn.vm.disk :disk, size: "{{ .DiskSize }}", primary: true
+    
     cn.vm.hostname = "{{ .Name }}"
     cn.vm.network = "private_network", ip: "{{ .IpAddress }}", vmware_desktop__vmnet: "{{ .Provider.VmNet }}"
+
+    cn.vm.synced_folder "scripts/provision", "/provision",
+      disabled: false
+
+    cn.vm.synced_folder "scripts/remote", "/scripts",
+      disabled: false 
+
+    cn.vm.synced_folder "settings", "/vagrant/settings",
+      disabled: false
     
     cn.vm.provider "vmware_desktop" do |v|
       v.gui = false
       v.memory = {{ .Memory }}
       v.cpus = {{ .Cpu }}
     end
+
+    cn.vm.provision "shell", inline: <<-SHELL
+    apt update
+    apt upgrade -y
+
+    # expand the disk if needed
+    bash /provision/disk-expand.sh
+
+    # install yq (needed for some local scripts)
+    bash /provision/install-yq.sh
+
+    # set up /etc/hosts file to allow for needed connections to other machines
+    bash /provision/setup-hostsfile.sh
+
+    SHELL
   end
   {{- end }}
 
   {{- range .WorkerNodes }}
   config.vm.define "{{ .Name }}" do |wn|
+    w.vm.disk :disk, size: "{{ .DiskSize }}", primary: true
+
     w.vm.hostname = "{{ .Name }}"
     w.vm.network = "private_network", ip: "{{ .IpAddress }}", vmware_desktop__vmnet: "{{ .Provider.VmNet }}"
 
-    w.gui = false
-    w.memory = {{ .Memory }}
-    w.cpus = {{ .Cpu }}
+    w.vm.synced_folder "scripts/provision", "/provision",
+      disabled: false
+
+    w.vm.synced_folder "scripts/remote", "/scripts",
+      disabled: false
+
+    w.vm.synced_folder "settings", "/vagrant/settings",
+      disabled: false
+
+    w.vm.provider "vmware_desktop" do |v|
+      v.gui = false
+      v.memory = {{ .Memory }}
+      v.cpus = {{ .Cpu }}
+    end 
+
+    w.vm.provision "shell", inline: <<-SHELL
+    apt update
+    apt upgrade -y
+
+    # expand the disk if need
+    bash /provision/disk-expand.sh
+
+    # install yq (needed for some local scripts)
+    bash /provision/install-yq.sh
+
+    # set up /etc/hosts file to allow for needed connections to other machines
+    bash /provision/setup-hostsfile.sh
+
+    SHELL
   end
   {{- end }}
 end
