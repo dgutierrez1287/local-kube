@@ -23,14 +23,17 @@ created - if the cluster has any machines from it that are
 in any state
 */
 func CheckForExistingCluster(appDir string, clusterName string, 
-client VagrantClientInterface) (bool, string, error){
+client VagrantClientInterface, machineOutput bool) (bool, string, error){
   var dirExists bool
+  machineCreated := false
 
   logger.Logger.Debug("checking if any cluster currently exists")
 
   dirExists, err := ClusterDirExists(appDir, clusterName)
   if err != nil {
-    logger.Logger.Error("Error checking for cluster dir", "cluster", clusterName)
+    if !machineOutput {
+      logger.Logger.Error("Error checking for cluster dir", "cluster", clusterName)
+    }
     return false, "", err
   }
   
@@ -48,35 +51,52 @@ client VagrantClientInterface) (bool, string, error){
   logger.Logger.Debug("statusCmd", statusCmd)
   
   if statusCmd == nil {
-    logger.Logger.Error("Error status command is nil")
+    if !machineOutput {
+      logger.Logger.Error("Error status command is nil")
+    }
     return false, "", errors.New("status command is nil")
   }
   
   if err := statusCmd.Start(); err != nil {
-    logger.Logger.Error("Error running the vagrant status command", "error", err)
+    if !machineOutput {
+      logger.Logger.Error("Error running the vagrant status command", "error", err)
+    }
     return false, "", err
   }
 
   if err := statusCmd.Wait(); err != nil {
-    logger.Logger.Error("Error waiting for the status command to return", "error", err)
+    if !machineOutput {
+      logger.Logger.Error("Error waiting for the status command to return", "error", err)
+    }
     return false, "", err
   }
 
   resp := statusCmd.StatusResponse
+  logger.Logger.Debug("response", resp)
   respErrors := resp.ErrorResponse
 
   if respErrors.Error != nil {
-    logger.Logger.Error("Error getting the vagrant status", "error", respErrors.Error)
+    if !machineOutput {
+      logger.Logger.Error("Error getting the vagrant status", "error", respErrors.Error)
+    }
     return false, "", respErrors.Error
   }
 
   statuses := resp.Status
 
-  if len(statuses) == 0 {
-    logger.Logger.Debug("Directory for cluster exists but no vms for cluster are present")
-    return true, "directory", nil
+  for name, status := range statuses {
+    logger.Logger.Debug("machine status", "name", name, "status", status)
+    if status != "not_created" {
+      logger.Logger.Debug("machine exists", "name", name)
+      machineCreated = true
+    }
   }
 
-  logger.Logger.Debug("Directory for cluster and vms are present, punt this back to the user")
-  return true, "created", nil
+  if machineCreated {
+    logger.Logger.Debug("Directory and machine(s) are created")
+    return true, "created", nil
+  }
+
+  logger.Logger.Debug("Directory for cluster is created, but no machines are created")
+  return true, "directory", nil
 }

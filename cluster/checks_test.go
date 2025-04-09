@@ -18,7 +18,7 @@ func TestCheckForExistingClusterNoDir(t *testing.T) {
 
   vagrantClientMock := NewMockVagrantClientStatus(mockStatus)
 
-  status, state, err := CheckForExistingCluster(util.MockAppDir, clusterName, vagrantClientMock)
+  status, state, err := CheckForExistingCluster(util.MockAppDir, clusterName, vagrantClientMock, false)
   
   assert.False(t, status)
   assert.Equal(t, state, "")
