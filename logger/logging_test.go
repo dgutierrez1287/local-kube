@@ -57,7 +57,7 @@ func TestInitLogging(t *testing.T) {
 	// Redirect stdout to capture the logs
 	t.Run("Test Debug Logging", func(t *testing.T) {
 		// Initialize logging with debug set to true and colorization
-		InitLogging(true, true)
+		InitLogging(true, true, false)
 
 		// Check if the global LogLevel is set to "DEBUG"
 		assert.Equal(t, "DEBUG", LogLevel, "Log level should be DEBUG")
@@ -72,7 +72,7 @@ func TestInitLogging(t *testing.T) {
 
 	t.Run("Test Info Logging", func(t *testing.T) {
 		// Initialize logging with debug set to false and no colorization
-		InitLogging(false, false)
+		InitLogging(false, false, false)
 
 		// Assert that the global LogLevel is "INFO"
 		assert.Equal(t, "INFO", LogLevel, "Log level should be INFO")
@@ -86,7 +86,7 @@ func TestInitLogging(t *testing.T) {
 
 	t.Run("Test Colorization", func(t *testing.T) {
 		// Initialize logging with colorization enabled
-		InitLogging(true, true)
+		InitLogging(true, true, false)
 
 		// Assertions for the color option behavior can be added here
 		// Custom logger behavior for color or checks for the colorization part
@@ -94,7 +94,7 @@ func TestInitLogging(t *testing.T) {
 
 	t.Run("Test Without Colorization", func(t *testing.T) {
 		// Initialize logging with colorization disabled
-		InitLogging(false, false)
+		InitLogging(false, false, false)
 
 		// Assertions for the color option behavior can be added here
 		// Ensure colorization is turned off

@@ -9,7 +9,7 @@ import (
 var Logger hclog.Logger
 var LogLevel string
 
-func InitLogging(debug bool, colorize bool) {
+func InitLogging(debug bool, colorize bool, machineOnlyOutput bool) {
   // set up logger 
 
   var colorOpt hclog.ColorOption
@@ -26,11 +26,15 @@ func InitLogging(debug bool, colorize bool) {
   if colorize {
     colorOpt = hclog.ColorOption(hclog.AutoColor)
   } else {
-    fmt.Println("Output colorization disabled")
+    if !machineOnlyOutput {
+      fmt.Println("Output colorization disabled")
+    }
     colorOpt = hclog.ColorOption(hclog.ColorOff)
   }
 
-  fmt.Printf("loglevel %s \n", LogLevel)
+  if !machineOnlyOutput {
+    fmt.Printf("loglevel %s \n", LogLevel)
+  }
 
   // create global logger
   Logger = hclog.New(&hclog.LoggerOptions{

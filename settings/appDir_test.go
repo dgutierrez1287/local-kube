@@ -15,7 +15,7 @@ import (
 // TestMain is executed before running any tests
 func TestMain(m *testing.M) {
 	// Initialize the logger before running any tests
-	logger.InitLogging(false, true)
+	logger.InitLogging(false, true, false)
 	os.Exit(m.Run())
 }
 
