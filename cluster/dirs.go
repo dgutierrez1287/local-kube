@@ -24,7 +24,6 @@ var mainDirs = []string {
   "ansible",
   "scripts",
   "kubeconfig",
-  "resources",
   "settings",
 }
 
