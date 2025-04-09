@@ -70,9 +70,23 @@ func GenerateScriptSettings(appDir string, clusterName string, appSettings setti
     return err
   }
 
-  err = os.WriteFile(settingsFile, yamlData, 0755)
+  file, err := os.Create(settingsFile)
   if err != nil {
-    logger.Logger.Error("Error writing script settings data to file")
+    logger.Logger.Error("Error creating the script settings file")
+    return err
+  }
+
+  defer file.Close()
+
+  _, err = file.WriteString("---\n")
+  if err != nil {
+    logger.Logger.Error("Error writing the yaml doc start marker")
+    return err
+  }
+
+  _, err = file.Write(yamlData)
+  if err != nil {
+    logger.Logger.Error("Error writing script settings content to file")
     return err
   }
   return nil
