@@ -8,6 +8,7 @@ type VagrantClientInterface interface {
   Status() *vagrant.StatusCommand
   Up() *vagrant.UpCommand
   Destroy() *vagrant.DestroyCommand
+  SshConfig() *vagrant.SSHConfigCommand
 }
 
 //type VagrantClientFactory func(vagrantDirPath string) (VagrantClientInterface, error)
@@ -22,6 +23,10 @@ func (v *DefaultVagrantClient) Status() *vagrant.StatusCommand {
 
 func (v *DefaultVagrantClient) Up() *vagrant.UpCommand {
   return v.client.Up()
+}
+
+func (v *DefaultVagrantClient) SshConfig() *vagrant.SSHConfigCommand {
+  return v.client.SSHConfig()
 }
 
 func (v *DefaultVagrantClient) Destroy() *vagrant.DestroyCommand {

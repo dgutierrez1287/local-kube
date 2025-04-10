@@ -35,3 +35,7 @@ func (m *MockVagrantClient) Up() *vagrant.UpCommand {
 func (m *MockVagrantClient) Destroy() *vagrant.DestroyCommand {
   return &vagrant.DestroyCommand{}
 }
+
+func (m *MockVagrantClient) SshConfig() *vagrant.SSHConfigCommand {
+  return &vagrant.SSHConfigCommand{}
+}
