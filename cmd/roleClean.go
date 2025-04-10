@@ -16,40 +16,42 @@ var roleCleanCmd = &cobra.Command{
   Short: "Cleans all roles and resets cache",
   Long: "Cleans all roles and resets cache",
   Run: func(cmd *cobra.Command, args []string) {
-    fmt.Println(util.TitleText)
+    if !machineOutput {
+      fmt.Println(util.TitleText)
+    }
 
     appDir := settings.GetAppDirPath()
 
-    logger.Logger.Info("Cleaning all roles and reseting cache")
+    logger.LogInfo("Cleaning all roles and reseting cache")
     cacheExists, err := ansible.RoleCacheFileExists(appDir)
     if err != nil {
-      logger.Logger.Error("There was an error checking if the cache exists", "error", err)
+      logger.LogError("There was an error checking if the cache exists", "error", err)
       os.Exit(130)
     }
 
     if !cacheExists {
-      logger.Logger.Info("No role cache is present roles should already be clean")
+      logger.LogInfo("No role cache is present roles should already be clean")
       os.Exit(130)
     }
 
-    logger.Logger.Info("Deleted all downloaded ansible roles")
+    logger.LogInfo("Deleted all downloaded ansible roles")
 
     err = ansible.ClearRoles(appDir)
     if err != nil {
-      logger.Logger.Error("There was an error clearing all the downloaded roles", "error", err)
+      logger.LogError("There was an error clearing all the downloaded roles", "error", err)
       os.Exit(130)
     }
 
-    logger.Logger.Info("Roles deleted successfully")
-    logger.Logger.Info("Deleting the roles cache file")
+    logger.LogInfo("Roles deleted successfully")
+    logger.LogInfo("Deleting the roles cache file")
 
     err = ansible.RoleCacheFileDelete(appDir)
     if err != nil {
-      logger.Logger.Error("There was an error deleting the cache file", "error", err)
+      logger.LogError("There was an error deleting the cache file", "error", err)
       os.Exit(130)
     }
 
-    logger.Logger.Info("Roles cache file was successfully deleted")
+    logger.LogInfo("Roles cache file was successfully deleted")
     os.Exit(0)
   },
 }

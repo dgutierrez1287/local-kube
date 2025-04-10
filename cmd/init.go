@@ -17,35 +17,37 @@ var initCmd = &cobra.Command {
   Short: "Initializes the system to use local-kube",
   Long: "Initializes the system to use local-kube",
   Run: func(cmd *cobra.Command, args []string) {
-    fmt.Println(util.TitleText)
+    if !machineOutput {
+      fmt.Println(util.TitleText)
+    }
 
-    logger.Logger.Info("Running initialization")
+    logger.LogInfo("Running initialization")
 
-    logger.Logger.Debug("Getting app directory paths")
+    logger.LogDebug("Getting app directory paths")
     appDir := settings.GetAppDirPath()
     ansibleRoleDir := filepath.Join(appDir, "ansible-roles")
 
-    logger.Logger.Debug("Checking if the directories and settings exist")
+    logger.LogDebug("Checking if the directories and settings exist")
     appDirExists := settings.DirectoryExists(appDir)
     ansibleRoleDirExists := settings.DirectoryExists(ansibleRoleDir)
     var alreadyInit bool
 
     // Top application directory
     if appDirExists {
-      logger.Logger.Debug("App directory already exists")
+      logger.LogDebug("App directory already exists")
       alreadyInit = true
     } else {
-      logger.Logger.Info("Creating app directory which will be at ~/.local-kube")
+      logger.LogInfo("Creating app directory which will be at ~/.local-kube")
       settings.CreateDirectory(appDir)
       alreadyInit = false
     }  
 
     // ansible role directory
     if ansibleRoleDirExists {
-      logger.Logger.Debug("Ansible role directory already exists")
+      logger.LogDebug("Ansible role directory already exists")
       alreadyInit = true
     } else {
-      logger.Logger.Info("Creating ansible role directory")
+      logger.LogInfo("Creating ansible role directory")
       settings.CreateDirectory(ansibleRoleDir)
       alreadyInit = false
     }
@@ -53,23 +55,23 @@ var initCmd = &cobra.Command {
     // Settings file
     settingsExists, err := settings.SettingsFileExists(appDir)
     if err != nil {
-      logger.Logger.Error("Error checking for the settings file")
+      logger.LogError("Error checking for the settings file")
       os.Exit(100)
     }
 
     if settingsExists {
-      logger.Logger.Debug("Settings file already exists")
+      logger.LogDebug("Settings file already exists")
       alreadyInit = true
     } else {
-      logger.Logger.Info("Creating default settings file")
+      logger.LogInfo("Creating default settings file")
       settings.CreateDefaultSettingsFile(appDir)
       alreadyInit = false
     }
 
     if alreadyInit {
-      logger.Logger.Info("Local-Kube already initialized!")
+      logger.LogInfo("Local-Kube already initialized!")
     } else {
-      logger.Logger.Info("Local-Kube initialized!")
+      logger.LogInfo("Local-Kube initialized!")
     }
   },
 }
