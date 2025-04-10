@@ -39,20 +39,20 @@ func RenderPlaybook(appDir string, clusterName string, hosts string, clusterType
   var playbook Playbook
 
   if clusterType == "ha" {
-    logger.Logger.Debug("cluster is an ha cluster writing playbook for node type", "nodeType", nodeType)
+    logger.LogDebug("cluster is an ha cluster writing playbook for node type", "nodeType", nodeType)
 
     playName = fmt.Sprintf("multi node %s node playbook", nodeType)
     varsFileName = fmt.Sprintf("vars-%s.yml", nodeType)
     playbookFileName = fmt.Sprintf("%s-playbook.yml", nodeType)
   } else {
-    logger.Logger.Debug("cluster is a single node writing playbook for single node cluster")
+    logger.LogDebug("cluster is a single node writing playbook for single node cluster")
 
     playName = "single node cluster playbook"
     varsFileName = "vars.yml"
     playbookFileName = "playbook.yml"
   }
 
-  logger.Logger.Debug("Generating playbook data")
+  logger.LogDebug("Generating playbook data")
   var playData = Play{
     Name: playName,
     Hosts: hosts,
@@ -70,7 +70,7 @@ func RenderPlaybook(appDir string, clusterName string, hosts string, clusterType
 
   yamlData, err := yaml.Marshal(&playbook)
   if err != nil {
-    logger.Logger.Error("Error marshaling playbook data to yaml")
+    logger.LogError("Error marshaling playbook data to yaml")
     return err
   }
 
@@ -78,7 +78,7 @@ func RenderPlaybook(appDir string, clusterName string, hosts string, clusterType
   file, err := os.Create(path)
 
   if err != nil {
-    logger.Logger.Error("Error creating the playbook file", "name", playbookFileName)
+    logger.LogError("Error creating the playbook file", "name", playbookFileName)
     return err
   }
 
@@ -86,13 +86,13 @@ func RenderPlaybook(appDir string, clusterName string, hosts string, clusterType
 
   _, err = file.WriteString("---\n")
   if err != nil {
-    logger.Logger.Error("Error writing the yaml doc start marker")
+    logger.LogError("Error writing the yaml doc start marker")
     return err
   }
 
   _, err = file.Write(yamlData)
   if err != nil {
-    logger.Logger.Error("Error writing playbook content to file")
+    logger.LogError("Error writing playbook content to file")
     return err
   }
   return nil

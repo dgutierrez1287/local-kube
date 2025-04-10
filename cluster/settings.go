@@ -36,43 +36,43 @@ func GenerateScriptSettings(appDir string, clusterName string, appSettings setti
   settings.ClusterName = clusterName
 
   if clusterSettings.ClusterFeatures.KubeVipEnable {
-    logger.Logger.Debug("Kube vip enabled setting vip in settings")
+    logger.LogDebug("Kube vip enabled setting vip in settings")
     settings.ClusterVip = clusterSettings.Vip
   }
 
   if clusterSettings.ClusterType == "ha" {
-    logger.Logger.Debug("Cluster is an ha cluster, setting machines for settings file")
+    logger.LogDebug("Cluster is an ha cluster, setting machines for settings file")
 
     for index, node := range clusterSettings.Leaders {
 
       if index == 0 {
-        logger.Logger.Debug("Adding lead node to settings", "name", node.Name)
+        logger.LogDebug("Adding lead node to settings", "name", node.Name)
         settings.LeadNode = append(settings.LeadNode, node)
       } else {
-        logger.Logger.Debug("Adding control node to settings", "name", node.Name)
+        logger.LogDebug("Adding control node to settings", "name", node.Name)
         settings.ControlNodes = append(settings.ControlNodes, node)
       }
     }
 
     for _, node := range clusterSettings.Workers {
-      logger.Logger.Debug("Adding worker node to settings", "name", node.Name)
+      logger.LogDebug("Adding worker node to settings", "name", node.Name)
       settings.WorkerNodes = append(settings.WorkerNodes, node)
     }
     
   } else {
-    logger.Logger.Debug("Cluster is a single node cluster adding the single machine to settings")
+    logger.LogDebug("Cluster is a single node cluster adding the single machine to settings")
     settings.MachineSettings = clusterSettings.Leaders[0]
   }
 
   yamlData, err := yaml.Marshal(&settings)
   if err != nil {
-    logger.Logger.Error("Error marshaling script settings to yaml")
+    logger.LogError("Error marshaling script settings to yaml")
     return err
   }
 
   file, err := os.Create(settingsFile)
   if err != nil {
-    logger.Logger.Error("Error creating the script settings file")
+    logger.LogError("Error creating the script settings file")
     return err
   }
 
@@ -80,13 +80,13 @@ func GenerateScriptSettings(appDir string, clusterName string, appSettings setti
 
   _, err = file.WriteString("---\n")
   if err != nil {
-    logger.Logger.Error("Error writing the yaml doc start marker")
+    logger.LogError("Error writing the yaml doc start marker")
     return err
   }
 
   _, err = file.Write(yamlData)
   if err != nil {
-    logger.Logger.Error("Error writing script settings content to file")
+    logger.LogError("Error writing script settings content to file")
     return err
   }
   return nil

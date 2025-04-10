@@ -24,8 +24,10 @@ type Machine struct {
   DiskSize string     `json:"diskSize" yaml:"disk_size,omitempty"`  // The size of the primary disk
 }
 
-// Gets a list of all but the first control node and returns
-// a list of just the node names
+/*
+Gets a list of all but the first control node and returns
+a list of just the node names
+*/
 func (cluster Cluster) GetSecondaryControlNodeNames() []string {
 
   names := []string{}
@@ -37,7 +39,22 @@ func (cluster Cluster) GetSecondaryControlNodeNames() []string {
   return names
 }
 
-// Gets a list of just the worker node names 
+/*
+Gets the vagrant machine name for the node that is 
+setup with ansible for provisioning, in multi-node this
+is the first control node
+*/
+func (cluster Cluster) GetAnsibleNodeVagrantName() string {
+  if cluster.ClusterType == "single" {
+    return "default"
+  } else {
+    return cluster.Leaders[0].Name
+  }
+}  
+
+/*
+Gets a list of just the worker node names 
+*/
 func (cluster Cluster) GetWorkerNodeNames() []string {
 
   names := []string{}
@@ -48,7 +65,9 @@ func (cluster Cluster) GetWorkerNodeNames() []string {
   return names
 }
 
-// Gets a list of control node IPs 
+/*
+Gets a list of control node IPs 
+*/
 func (cluster Cluster) GetControlNodeIps() []string {
   
   ips := []string{}
@@ -59,7 +78,9 @@ func (cluster Cluster) GetControlNodeIps() []string {
   return ips
 }
 
-// check if the cluster is ha or not
+/*
+check if the cluster is ha or not
+*/
 func (cluster Cluster) IsHA() bool {
   if cluster.ClusterType == "ha" {
     return true

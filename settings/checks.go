@@ -15,22 +15,22 @@ func PreflightCheck(appDir string) bool {
   settingsExist, err := SettingsFileExists(appDir)
 
   if err != nil {
-    logger.Logger.Error("Error checking if settings file exists", "error", err)
+    logger.LogError("Error checking if settings file exists", "error", err)
     os.Exit(100)
   }
 
   if !appDirExist {
-    logger.Logger.Error("Preflight check failed, app directory does not exist")
+    logger.LogError("Preflight check failed, app directory does not exist")
     return false
   }
 
   if !ansibleRoleDirExist {
-    logger.Logger.Error("Preflight check failed, ansible-role directory does not exist")
+    logger.LogError("Preflight check failed, ansible-role directory does not exist")
     return false
   }
 
   if !settingsExist {
-    logger.Logger.Error("Preflight check failed, settings file does not exist")
+    logger.LogError("Preflight check failed, settings file does not exist")
     return false 
   }
   return true

@@ -27,10 +27,10 @@ TODO: right now this will only validate the cluster
 func (settings *Settings) SettingsValid(clusterName string) bool {
   //validate cluster name is in settings
   if _, exists := settings.Clusters[clusterName]; exists {
-    logger.Logger.Debug("cluster exists in settings", "cluster", clusterName)
+    logger.LogDebug("cluster exists in settings", "cluster", clusterName)
     return true
   } else {
-    logger.Logger.Error("cluster is not present in settings", "cluster", clusterName)
+    logger.LogError("cluster is not present in settings", "cluster", clusterName)
     return false
   }
 }
@@ -45,13 +45,13 @@ func SettingsFileExists(appDir string) (bool, error) {
   _, err := os.Stat(settingsFilePath)
 
   if errors.Is(err, os.ErrNotExist) {
-    logger.Logger.Debug("Settings file does not exist")
+    logger.LogDebug("Settings file does not exist")
     return false, nil
   } else if err != nil {
-    logger.Logger.Error("Error checking if settings file exists")
+    logger.LogError("Error checking if settings file exists")
     return false, err
   }
-  logger.Logger.Debug("Settings file exists")
+  logger.LogDebug("Settings file exists")
   return true,nil
 }
 
@@ -79,12 +79,12 @@ func CreateDefaultSettingsFile(appDir string) error {
     Providers: make(map[string]Provider),
     Clusters: make(map[string]Cluster),
   }
-  logger.Logger.Debug("creating an empty settings with defauts", "settings", emptySettings)
+  logger.LogDebug("creating an empty settings with defauts", "settings", emptySettings)
 
-  logger.Logger.Debug("Creating new settings file")
+  logger.LogDebug("Creating new settings file")
   file, err := os.Create(settingsFile)
   if err != nil {
-    logger.Logger.Error("Error creating blank settings file")
+    logger.LogError("Error creating blank settings file")
     return err
   }
   defer file.Close()
@@ -92,12 +92,12 @@ func CreateDefaultSettingsFile(appDir string) error {
   encoder := json.NewEncoder(file)
   encoder.SetIndent("", " ")
 
-  logger.Logger.Debug("Writing default settings to file")
+  logger.LogDebug("Writing default settings to file")
   if err := encoder.Encode(emptySettings); err != nil {
-    logger.Logger.Error("Error writing settings defaults to file")
+    logger.LogError("Error writing settings defaults to file")
     return err
   }
-  logger.Logger.Debug("Default settings file created successfully")
+  logger.LogDebug("Default settings file created successfully")
   return nil 
 }
 
@@ -111,24 +111,24 @@ func ReadSettingsFile(appDir string) (Settings, error){
 
   file, err := os.Open(settingsFile) 
   if err != nil {
-    logger.Logger.Error("Error opening settings file")
+    logger.LogError("Error opening settings file")
     return Settings{}, err
   }
   defer file.Close()
 
   bytes, err := io.ReadAll(file)
   if err != nil {
-    logger.Logger.Error("Error reading settings file")
+    logger.LogError("Error reading settings file")
     return Settings{}, err
   }
 
   var settings Settings
   err = json.Unmarshal(bytes, &settings)
   if err != nil {
-    logger.Logger.Error("Error unmarshaling json to struct")
+    logger.LogError("Error unmarshaling json to struct")
     return Settings{}, err
   }
-  logger.Logger.Debug("Settings file read successfully")
+  logger.LogDebug("Settings file read successfully")
   return settings, nil
 }
 

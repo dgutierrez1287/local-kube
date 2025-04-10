@@ -24,7 +24,7 @@ func ClearRoles(appDir string) error {
 
   entries, err := os.ReadDir(roleDir)
   if err != nil {
-    logger.Logger.Error("Error reading the ansible role directory", "dir", roleDir)
+    logger.LogError("Error reading the ansible role directory", "dir", roleDir)
     return err
   }
 
@@ -32,13 +32,13 @@ func ClearRoles(appDir string) error {
     if entry.IsDir() {
       dirPath := filepath.Join(roleDir, entry.Name())
 
-      logger.Logger.Info("Clearing ansible role", "name", entry.Name(), "path", dirPath)
+      logger.LogInfo("Clearing ansible role", "name", entry.Name(), "path", dirPath)
       err := os.RemoveAll(dirPath)
       if err != nil {
-        logger.Logger.Error("Error removing role", "name", entry.Name(), "path", dirPath)
+        logger.LogError("Error removing role", "name", entry.Name(), "path", dirPath)
         return err
       }
-      logger.Logger.Debug("Ansible role removed", "name", entry.Name(), "path", dirPath)
+      logger.LogDebug("Ansible role removed", "name", entry.Name(), "path", dirPath)
     }
   }
   return nil
@@ -53,14 +53,14 @@ local to git
 func ClearRole(appDir string, roleName string) error {
   rolePath := filepath.Join(appDir, ansibleRoleDir, roleName)
   
-  logger.Logger.Info("Clearing ansible role", "name", roleName, "path", rolePath)
+  logger.LogInfo("Clearing ansible role", "name", roleName, "path", rolePath)
   err := os.RemoveAll(rolePath)
   
   if err != nil {
-    logger.Logger.Error("Error clearing ansible role", "name", roleName, "path", rolePath)
+    logger.LogError("Error clearing ansible role", "name", roleName, "path", rolePath)
     return err
   }
-  logger.Logger.Debug("Successfully cleared ansible role")
+  logger.LogDebug("Successfully cleared ansible role")
   return nil
 }
 
@@ -83,47 +83,47 @@ func RoleReconcileLists(currentRoles map[string]settings.AnsibleRole, desiredRol
 
   // loop through the desired roles to get lists of roles to add 
   // roles to upgrade
-  logger.Logger.Debug("Looping through desired roles to get add/update lists")
+  logger.LogDebug("Looping through desired roles to get add/update lists")
   for desiredRoleName, desiredRole := range desiredRoles {
-    logger.Logger.Debug("Processing role", "roleName", desiredRoleName)
+    logger.LogDebug("Processing role", "roleName", desiredRoleName)
 
     // error check for for bad config
     if desiredRole.LocationType != "git" && desiredRole.LocationType != "local" {
-      logger.Logger.Error("Error role config is bad, not supported location type", "roleName", desiredRoleName)
+      logger.LogError("Error role config is bad, not supported location type", "roleName", desiredRoleName)
       return []string{}, []string{}, []string{}, []string{}, errors.New("unsupported location type")
     }
 
     // if the role is not in the current role list, role is to be added
     if _, exists := currentRoles[desiredRoleName]; !exists {
-      logger.Logger.Debug("Role is not in the current role list, to be added", "roleName", desiredRoleName)
+      logger.LogDebug("Role is not in the current role list, to be added", "roleName", desiredRoleName)
       rolesToAdd = append(rolesToAdd, desiredRoleName)
       continue
     }
 
     // get the current state and desired state for some comparisons
-    logger.Logger.Debug("Getting current and desired state for comparisons")
+    logger.LogDebug("Getting current and desired state for comparisons")
     currentRole := currentRoles[desiredRoleName]
-    logger.Logger.Debug("Current role state", "name", desiredRoleName, "role", currentRole)
-    logger.Logger.Debug("Desired role state", "name", desiredRoleName, "role", desiredRole)
+    logger.LogDebug("Current role state", "name", desiredRoleName, "role", currentRole)
+    logger.LogDebug("Desired role state", "name", desiredRoleName, "role", desiredRole)
 
     // if the role is local it will always require a 
     // clean and recopy
     if desiredRole.LocationType == "local" {
-      logger.Logger.Debug("Role is local type, requires a clean and recopy")
+      logger.LogDebug("Role is local type, requires a clean and recopy")
       rolesToCleanReAdd = append(rolesToCleanReAdd, desiredRoleName)
     }
 
     // if role location type is git further checks are 
     // needed to see if the role can be updated in place
     if desiredRole.LocationType == "git" {
-      logger.Logger.Debug("Role is git type, checking to see if update in place is possible")
+      logger.LogDebug("Role is git type, checking to see if update in place is possible")
       updateable := gitUpdateableRole(currentRole, desiredRole)
 
       if updateable {
-        logger.Logger.Debug("Role is able to be updated in place")
+        logger.LogDebug("Role is able to be updated in place")
         rolesToUpdateInPlace = append(rolesToUpdateInPlace, desiredRoleName)
       } else {
-        logger.Logger.Debug("Role is not able to be updated in place")
+        logger.LogDebug("Role is not able to be updated in place")
         rolesToCleanReAdd = append(rolesToCleanReAdd, desiredRoleName)
       }
     }
@@ -131,13 +131,13 @@ func RoleReconcileLists(currentRoles map[string]settings.AnsibleRole, desiredRol
 
   // loop through the current roles to get a list of roles to 
   // remove
-  logger.Logger.Debug("Looping through current roles to get a remove list")
+  logger.LogDebug("Looping through current roles to get a remove list")
   for currentRoleName := range currentRoles {
-    logger.Logger.Debug("Processing role", "roleName", currentRoleName)
+    logger.LogDebug("Processing role", "roleName", currentRoleName)
 
     // if the role is not in the desired role list, role to be removed
     if _, exists := desiredRoles[currentRoleName]; !exists {
-      logger.Logger.Debug("Role is not in desired role list, to be removed", "roleName", currentRoleName)
+      logger.LogDebug("Role is not in desired role list, to be removed", "roleName", currentRoleName)
       rolesToRemove = append(rolesToRemove, currentRoleName)
     }
   }
@@ -151,19 +151,19 @@ and start over
 */
 func gitUpdateableRole(currentRole settings.AnsibleRole, newRole settings.AnsibleRole) bool {
 
-  logger.Logger.Debug("Checking location type to make sure its still pulled from git")
+  logger.LogDebug("Checking location type to make sure its still pulled from git")
   if currentRole.LocationType != newRole.LocationType {
-    logger.Logger.Debug("Location type has changed it, it now a local sourced role")
+    logger.LogDebug("Location type has changed it, it now a local sourced role")
     return false
   }
 
-  logger.Logger.Debug("checking if location is the same, to make sure the git repo is the same")
+  logger.LogDebug("checking if location is the same, to make sure the git repo is the same")
   if currentRole.Location != newRole.Location {
-    logger.Logger.Debug("Git repo has changed, role will need to be cleared")
+    logger.LogDebug("Git repo has changed, role will need to be cleared")
     return false
   }
   
-  logger.Logger.Debug("Git role is updatable in place")
+  logger.LogDebug("Git role is updatable in place")
   return true
 }
 
@@ -178,26 +178,26 @@ func UpdateGitRole(appDir string, roleName string, currentRole settings.AnsibleR
   
   plumbingRef, refSpec, err :=  getReferenceName(newRole.RefType, newRole.GitRef)
   if err != nil {
-    logger.Logger.Error("Error getting git reference type")
+    logger.LogError("Error getting git reference type")
     return err
   }
 
-  logger.Logger.Debug("Opening the git repo", "repo", rolePath)
+  logger.LogDebug("Opening the git repo", "repo", rolePath)
   repo, err := git.PlainOpen(rolePath) 
   
   if err != nil {
-    logger.Logger.Error("Error opening git repo", "repo", rolePath)
+    logger.LogError("Error opening git repo", "repo", rolePath)
     return err
   }
 
   // if its the same reference just do a pull to get
   // up to date
   if currentRole.GitRef == newRole.GitRef {
-    logger.Logger.Debug("Branch or tag is the same as previous, updating...")
+    logger.LogDebug("Branch or tag is the same as previous, updating...")
 
     worktree, err := repo.Worktree()
     if err != nil {
-      logger.Logger.Error("Error getting the worktree for the repo", "repo", rolePath)
+      logger.LogError("Error getting the worktree for the repo", "repo", rolePath)
       return err
     }
 
@@ -209,20 +209,20 @@ func UpdateGitRole(appDir string, roleName string, currentRole settings.AnsibleR
     })
 
     if err == git.NoErrAlreadyUpToDate {
-      logger.Logger.Info("Branch or tag is already up to date", "ref", newRole.GitRef)
+      logger.LogInfo("Branch or tag is already up to date", "ref", newRole.GitRef)
       return nil
     } else if err != nil {
-      logger.Logger.Error("Error pulling from git")
+      logger.LogError("Error pulling from git")
       return err
     } else {
-      logger.Logger.Debug("Branch or Tag updated")
+      logger.LogDebug("Branch or Tag updated")
       return nil
     }
   }
 
   // fetcb a different reference (tag or branch) and 
   // check out that reference
-  logger.Logger.Debug("Branch or tag is different from previous, fetching new")
+  logger.LogDebug("Branch or tag is different from previous, fetching new")
 
   err = repo.Fetch(&git.FetchOptions{
     RemoteName: "origin",
@@ -231,32 +231,32 @@ func UpdateGitRole(appDir string, roleName string, currentRole settings.AnsibleR
   })
 
   if err == git.NoErrAlreadyUpToDate {
-    logger.Logger.Debug("Git branch or tag is already up to date")
+    logger.LogDebug("Git branch or tag is already up to date")
   } else if err != nil {
-    logger.Logger.Error("Error fetching git branch or tag", "ref", newRole.GitRef)
+    logger.LogError("Error fetching git branch or tag", "ref", newRole.GitRef)
     return err
   } 
 
-  logger.Logger.Debug("Successfully fetched git branch or tag", "ref", newRole.GitRef)
+  logger.LogDebug("Successfully fetched git branch or tag", "ref", newRole.GitRef)
 
   worktree, err := repo.Worktree()
   if err != nil {
-    logger.Logger.Error("Error checking out worktree")
+    logger.LogError("Error checking out worktree")
     return err
   }
 
-  logger.Logger.Debug("Checking out branch or tag", "ref", newRole.GitRef, "refType", newRole.RefType)
+  logger.LogDebug("Checking out branch or tag", "ref", newRole.GitRef, "refType", newRole.RefType)
 
   err = worktree.Checkout(&git.CheckoutOptions{
     Branch: plumbingRef,
   })
 
   if err != nil {
-    logger.Logger.Error("Error checking out branch or tag", "ref", newRole.GitRef)
+    logger.LogError("Error checking out branch or tag", "ref", newRole.GitRef)
     return err
   }
 
-  logger.Logger.Debug("Successfully checked out branch or tag", "ref", newRole.GitRef)
+  logger.LogDebug("Successfully checked out branch or tag", "ref", newRole.GitRef)
   return nil
 }
 
@@ -270,15 +270,15 @@ func CreateGitRole(appDir string, roleName string, role settings.AnsibleRole) er
   url := role.Location
   ref := role.GitRef
 
-  logger.Logger.Debug("Getting full git reference")
+  logger.LogDebug("Getting full git reference")
   plumbingRef, _, err := getReferenceName(role.RefType, ref) 
   if err != nil {
-    logger.Logger.Error("Error getting the git reference name")
+    logger.LogError("Error getting the git reference name")
     return err
   }
-  logger.Logger.Debug("Full git reference", "ref", plumbingRef)
+  logger.LogDebug("Full git reference", "ref", plumbingRef)
 
-  logger.Logger.Debug("Cloning git repo for role", "role", roleName, "refType", role.RefType, "ref", ref)
+  logger.LogDebug("Cloning git repo for role", "role", roleName, "refType", role.RefType, "ref", ref)
   _, err = git.PlainClone(rolePath, false, &git.CloneOptions{
     URL: url,
     ReferenceName: plumbingRef,
@@ -287,10 +287,10 @@ func CreateGitRole(appDir string, roleName string, role settings.AnsibleRole) er
   })
 
   if err != nil {
-    logger.Logger.Error("Error cloning the git repo for role", "role", roleName, "refType", role.RefType, "ref", ref)
+    logger.LogError("Error cloning the git repo for role", "role", roleName, "refType", role.RefType, "ref", ref)
     return err
   }
-  logger.Logger.Debug("Successfully checked out role", "role", roleName, "refType", role.RefType, "ref", ref)
+  logger.LogDebug("Successfully checked out role", "role", roleName, "refType", role.RefType, "ref", ref)
   return nil 
 }
 
@@ -302,15 +302,15 @@ roles directory
 func CreateLocalRole(appDir string,roleName string, role settings.AnsibleRole) error {
   rolePath := filepath.Join(appDir, ansibleRoleDir, roleName)
 
-  logger.Logger.Debug("Copying new role to roles directory", "role", roleName, "rolePath", rolePath, "srcPath", role.Location)
+  logger.LogDebug("Copying new role to roles directory", "role", roleName, "rolePath", rolePath, "srcPath", role.Location)
   
   err := copy.Copy(role.Location, rolePath)
   if err != nil {
-    logger.Logger.Error("Error copying role", "role", roleName, "rolePath", rolePath, "srcPath", role.Location)
+    logger.LogError("Error copying role", "role", roleName, "rolePath", rolePath, "srcPath", role.Location)
     return err
   }
 
-  logger.Logger.Debug("role copied successfully")
+  logger.LogDebug("role copied successfully")
   return nil
 }
 
@@ -325,21 +325,21 @@ func getReferenceName(refType string, ref string) (plumbing.ReferenceName, confi
 
   switch refType {
   case "branch":
-    logger.Logger.Debug("Using git branch for reference", "ref", ref)
+    logger.LogDebug("Using git branch for reference", "ref", ref)
 
     refSpec = config.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/remotes/origin/%s", ref, ref))
     plumbingRef = plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", ref))
 
     return plumbingRef, refSpec, nil
   case "tag":
-    logger.Logger.Debug("Using git tag for reference", "ref", ref)
+    logger.LogDebug("Using git tag for reference", "ref", ref)
 
     refSpec = config.RefSpec(fmt.Sprintf("+refs/tags/%s:refs/tags/%s", ref, ref))
     plumbingRef = plumbing.ReferenceName(fmt.Sprintf("refs/tags/%s", ref))
 
     return plumbingRef, refSpec, nil
   default:
-    logger.Logger.Error("Error ref is not a supported type", "refType", refType, "ref", ref)
+    logger.LogError("Error ref is not a supported type", "refType", refType, "ref", ref)
     return plumbing.ReferenceName(""), config.RefSpec(""), errors.New("unknown ref type")
   }
 }

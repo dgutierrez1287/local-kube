@@ -23,7 +23,7 @@ the equilvalent on windows
 func GetAppDirPath() string {
   userDir, err := os.UserHomeDir()
   if err != nil {
-    logger.Logger.Error("Error getting user home dir", "error", err)
+    logger.LogError("Error getting user home dir", "error", err)
     os.Exit(120)
   }
 
@@ -39,14 +39,14 @@ func DirectoryExists(dirPath string) bool {
 
   if _, err := os.Stat(dirPath); err != nil {
     if errors.Is(err, os.ErrNotExist) {
-      logger.Logger.Debug("directory does not exist", "path", dirPath)
+      logger.LogDebug("directory does not exist", "path", dirPath)
       dirExists = false
     } else {
-      logger.Logger.Error("Error checking if directory exists", "path", dirPath, "error", err)
+      logger.LogError("Error checking if directory exists", "path", dirPath, "error", err)
       os.Exit(120)
     }
   } else {
-    logger.Logger.Debug("Directory exists")
+    logger.LogDebug("Directory exists")
     dirExists = true
   }
 
@@ -60,9 +60,9 @@ func CreateDirectory(dirPath string) {
 
   err := os.Mkdir(dirPath, 0750)
   if err != nil {
-    logger.Logger.Error("Error creating directory", "path", dirPath,"error", err)
+    logger.LogError("Error creating directory", "path", dirPath,"error", err)
     os.Exit(123)
   }
-  logger.Logger.Info("Directory created")
+  logger.LogInfo("Directory created")
 }
 

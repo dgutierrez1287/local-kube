@@ -22,20 +22,20 @@ func GenerateAnsibleResources(appDir string, clusterName string, appSettings set
   var secondaryControlNodeNames []string
   var workerNodeNames []string
 
-  logger.Logger.Debug("Generating ansible hosts file")
+  logger.LogDebug("Generating ansible hosts file")
   if appSettings.Clusters[clusterName].ClusterType == "single" {
 
-    logger.Logger.Debug("Single Node creating empty node name arrays")
+    logger.LogDebug("Single Node creating empty node name arrays")
     secondaryControlNodeNames = []string{}
     workerNodeNames = []string{}
   } else {
 
-    logger.Logger.Debug("Multi Node getting node name lists from settings")
+    logger.LogDebug("Multi Node getting node name lists from settings")
     secondaryControlNodeNames = appSettings.Clusters[clusterName].GetSecondaryControlNodeNames()
     workerNodeNames = appSettings.Clusters[clusterName].GetWorkerNodeNames()
 
-    logger.Logger.Debug("secondary control nodes", "names", secondaryControlNodeNames)
-    logger.Logger.Debug("work control nodes", "names", workerNodeNames)
+    logger.LogDebug("secondary control nodes", "names", secondaryControlNodeNames)
+    logger.LogDebug("work control nodes", "names", workerNodeNames)
   }
 
   // Generate ansible hosts file
@@ -45,16 +45,16 @@ func GenerateAnsibleResources(appDir string, clusterName string, appSettings set
     workerNodeNames)
 
   if err != nil {
-    logger.Logger.Error("Error creating ansible hosts file")
+    logger.LogError("Error creating ansible hosts file")
     return err
   }
 
-  logger.Logger.Debug("Generating bootstrap.sh script")
+  logger.LogDebug("Generating bootstrap.sh script")
   err = ansible.RenderBootstrapScript(appDir, clusterName,
     appSettings.ProvisionSettings.AnsibleVersion)
 
   if err != nil {
-    logger.Logger.Error("Error Rendering bootstrap script")
+    logger.LogError("Error Rendering bootstrap script")
     return err
   }
   return nil
@@ -70,41 +70,41 @@ func GenerateAnsiblePlaybooks(appDir string, clusterName string, appSettings set
   clusterType := appSettings.Clusters[clusterName].ClusterType
 
   if clusterType == "ha" {
-    logger.Logger.Debug("Generating playbooks for ha cluster")
+    logger.LogDebug("Generating playbooks for ha cluster")
 
-    logger.Logger.Debug("Rendering playbook for lead node")
+    logger.LogDebug("Rendering playbook for lead node")
     err := ansible.RenderPlaybook(appDir, clusterName, "localhost",
       clusterType, "lead")
 
     if err != nil {
-      logger.Logger.Error("Error rendering lead node playbook")
+      logger.LogError("Error rendering lead node playbook")
       return err 
     }
 
-    logger.Logger.Debug("Rendering playbook for control nodes")
+    logger.LogDebug("Rendering playbook for control nodes")
     err = ansible.RenderPlaybook(appDir, clusterName, "control-nodes",
       clusterType, "control")
 
     if err != nil {
-      logger.Logger.Error("Error rendering playbook for control nodes")
+      logger.LogError("Error rendering playbook for control nodes")
       return err
     }
 
-    logger.Logger.Debug("Rendering playbook for worker nodes")
+    logger.LogDebug("Rendering playbook for worker nodes")
     err = ansible.RenderPlaybook(appDir, clusterName, "worker-nodes",
       clusterType, "worker")
 
     if err != nil {
-      logger.Logger.Error("Error rendering playbook for worker nodes")
+      logger.LogError("Error rendering playbook for worker nodes")
       return err
     }
   } else {
-    logger.Logger.Debug("Generating playbooks for single node cluster")
+    logger.LogDebug("Generating playbooks for single node cluster")
     err := ansible.RenderPlaybook(appDir, clusterName, "localhost",
       clusterType, "")
 
     if err != nil {
-      logger.Logger.Error("Error rendering playbook for single node cluster")
+      logger.LogError("Error rendering playbook for single node cluster")
       return err
     }
   }
@@ -120,37 +120,37 @@ func GenerateAnsibleVariables(appDir string, clusterName string, appSettings set
   clusterType := appSettings.Clusters[clusterName].ClusterType
 
   if clusterType == "ha" {
-    logger.Logger.Debug("Generating variables file for ha cluster")
+    logger.LogDebug("Generating variables file for ha cluster")
 
-    logger.Logger.Debug("Renderinng vars for lead node")
+    logger.LogDebug("Renderinng vars for lead node")
     err := ansible.GenerateVarsFile(appDir, clusterName, clusterType, "lead", appSettings)
     
     if err != nil {
-      logger.Logger.Error("Error rendering vars file for lead node")
+      logger.LogError("Error rendering vars file for lead node")
       return err
     }
 
-    logger.Logger.Debug("Error Rendering vars for control nodes")
+    logger.LogDebug("Error Rendering vars for control nodes")
     err = ansible.GenerateVarsFile(appDir, clusterName, clusterType, "control", appSettings)
 
     if err != nil {
-      logger.Logger.Error("Error rendering vars for control nodes")
+      logger.LogError("Error rendering vars for control nodes")
       return err
     }
 
-    logger.Logger.Debug("Rendering vars for worker nodes") 
+    logger.LogDebug("Rendering vars for worker nodes") 
     err = ansible.GenerateVarsFile(appDir, clusterName, clusterType, "worker", appSettings)
 
     if err != nil {
-      logger.Logger.Error("Error rendering vars for worker nodes")
+      logger.LogError("Error rendering vars for worker nodes")
       return err
     }
   } else {
-    logger.Logger.Debug("Generating variables for single node cluster")
+    logger.LogDebug("Generating variables for single node cluster")
     err := ansible.GenerateVarsFile(appDir, clusterName, clusterType, "", appSettings)
 
     if err != nil {
-      logger.Logger.Error("Error rendering vars for single node cluster")
+      logger.LogError("Error rendering vars for single node cluster")
       return err
     }
   }
@@ -165,20 +165,20 @@ func SetupStaticScripts(appDir string, clusterName string) error {
   provisionScriptPath := filepath.Join(appDir, clusterName, "scripts", "provision")
   remoteScriptPath := filepath.Join(appDir, clusterName, "scripts", "remote")
 
-  logger.Logger.Debug("Getting list of provision scripts to copy")
+  logger.LogDebug("Getting list of provision scripts to copy")
   provisionScripts, err := static.ListProvisonScripts()
 
   if err != nil {
-    logger.Logger.Error("Error getting list of provision scripts")
+    logger.LogError("Error getting list of provision scripts")
     return err
   }
 
   for _, scriptName := range provisionScripts {
-    logger.Logger.Debug("Copying provision script", "name", scriptName)
+    logger.LogDebug("Copying provision script", "name", scriptName)
     scriptContent, err := static.ReadProvisionScriptFile(scriptName)
 
     if err != nil {
-      logger.Logger.Error("Error getting provision script content", "name", scriptName)
+      logger.LogError("Error getting provision script content", "name", scriptName)
       return err
     }
 
@@ -186,25 +186,25 @@ func SetupStaticScripts(appDir string, clusterName string) error {
     err = os.WriteFile(path, []byte(scriptContent), 0755)
 
     if err != nil {
-      logger.Logger.Error("Error writing script file", "name", scriptName)
+      logger.LogError("Error writing script file", "name", scriptName)
       return err
     }
   }
 
-  logger.Logger.Debug("Getting list of remote scripts to copy")
+  logger.LogDebug("Getting list of remote scripts to copy")
   remoteScripts, err := static.ListRemoteScripts()
 
   if err != nil {
-    logger.Logger.Error("Error getting list of remote scripts")
+    logger.LogError("Error getting list of remote scripts")
     return err
   }
 
   for _, scriptName := range remoteScripts {
-    logger.Logger.Debug("Copying remote script", "name", scriptName)
+    logger.LogDebug("Copying remote script", "name", scriptName)
     scriptContent, err := static.ReadRemoteScriptFile(scriptName)
 
     if err != nil {
-      logger.Logger.Error("Error getting remote script content", "name", scriptName)
+      logger.LogError("Error getting remote script content", "name", scriptName)
       return err
     }
 
@@ -212,7 +212,7 @@ func SetupStaticScripts(appDir string, clusterName string) error {
     err = os.WriteFile(path, []byte(scriptContent), 0755)
 
     if err != nil {
-      logger.Logger.Error("Error writing script file", "name", scriptName)
+      logger.LogError("Error writing script file", "name", scriptName)
       return err
     }
   } 
@@ -230,17 +230,17 @@ func RenderVagrantFile(appDir string, clusterName string, appSettings settings.S
 
   vagrantFilePath := filepath.Join(appDir, clusterName, "VagrantFile")
 
-  logger.Logger.Debug("Getting data for VagrantFile rendering", "providerName", providerName, "providerType", providerType)
-  logger.Logger.Debug("VagrantFile path", "path", vagrantFilePath)
+  logger.LogDebug("Getting data for VagrantFile rendering", "providerName", providerName, "providerType", providerType)
+  logger.LogDebug("VagrantFile path", "path", vagrantFilePath)
 
   data := make(map[string]interface{})
 
   data["Provider"] = appSettings.Providers[providerName]
 
-  logger.Logger.Debug("Provider settings", "settings", data["Provider"])
+  logger.LogDebug("Provider settings", "settings", data["Provider"])
 
   if clusterType == "ha" {
-    logger.Logger.Debug("Setting up vagrant template data for ha cluster")
+    logger.LogDebug("Setting up vagrant template data for ha cluster")
 
     var leadControlNode []settings.Machine 
     leadControlNode = append(leadControlNode, appSettings.Clusters[clusterName].Leaders[0])
@@ -253,24 +253,24 @@ func RenderVagrantFile(appDir string, clusterName string, appSettings settings.S
     data["WorkerNodes"] = workerNodes
 
   } else {
-    logger.Logger.Debug("Setting up vagrant template data for single node cluster")
+    logger.LogDebug("Setting up vagrant template data for single node cluster")
 
     data["Node"] = appSettings.Clusters[clusterName].Leaders[0]
-    logger.Logger.Debug("Node values are", "node", data["Node"])
+    logger.LogDebug("Node values are", "node", data["Node"])
   }
 
   renderedVagrantFile, err := template.RenderVagrantfileTemplate(providerType, clusterType, data)
 
   if err != nil {
-    logger.Logger.Error("Error rendering Vagrantfile")
+    logger.LogError("Error rendering Vagrantfile")
     return err
   }
 
-  logger.Logger.Debug("Writing out vagrantfile to cluster directory")
+  logger.LogDebug("Writing out vagrantfile to cluster directory")
   err = os.WriteFile(vagrantFilePath, []byte(renderedVagrantFile), 0755)
 
   if err != nil {
-    logger.Logger.Error("Error writing vagrantfile to location")
+    logger.LogError("Error writing vagrantfile to location")
     return err
   }
 

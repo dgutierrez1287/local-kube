@@ -32,14 +32,14 @@ func RoleCacheFileExists(appDir string) (bool, error){
 
   if _, err := os.Stat(roleCacheFile); err != nil {
     if errors.Is(err, os.ErrNotExist) {
-      logger.Logger.Debug("Role cache file does not exist")
+      logger.LogDebug("Role cache file does not exist")
       return false, nil
     } else {
-      logger.Logger.Error("Error checking for the role cache file")
+      logger.LogError("Error checking for the role cache file")
       return false, err
     }
   } else {
-    logger.Logger.Debug("Role cache file exists")
+    logger.LogDebug("Role cache file exists")
   }
   return true, nil
 }
@@ -55,11 +55,11 @@ func RoleCacheFileDelete(appDir string) (error) {
 
   err := os.Remove(roleCacheFile)
   if err != nil {
-    logger.Logger.Error("There was an error removing the role cache file")
+    logger.LogError("There was an error removing the role cache file")
     return err
   }
 
-  logger.Logger.Debug("Role cache file has been removed")
+  logger.LogDebug("Role cache file has been removed")
   return nil 
 }
 
@@ -71,30 +71,30 @@ a RoleCache object from it
 func ReadRoleCache(appDir string) (RoleCache, error) {
   roleCacheFile := filepath.Join(appDir, ansibleRoleDir, roleCacheFileName)
 
-  logger.Logger.Debug("Opening the role cache file", "file", roleCacheFile)
+  logger.LogDebug("Opening the role cache file", "file", roleCacheFile)
   file, err := os.Open(roleCacheFile)
   if err != nil {
-    logger.Logger.Error("Error opening ansible role cache file")
+    logger.LogError("Error opening ansible role cache file")
     return RoleCache{}, err
   }
   defer file.Close()
 
-  logger.Logger.Debug("Reading role cache file")
+  logger.LogDebug("Reading role cache file")
   bytes, err := io.ReadAll(file)
   if err != nil {
-    logger.Logger.Error("Error reading ansible role cache file")
+    logger.LogError("Error reading ansible role cache file")
     return RoleCache{}, err
   }
 
   var roleCache RoleCache
-  logger.Logger.Debug("Unmarshaling role cache")
+  logger.LogDebug("Unmarshaling role cache")
   err = json.Unmarshal(bytes, &roleCache)
   if err != nil {
-    logger.Logger.Error("Error unmarshaling json to struct")
+    logger.LogError("Error unmarshaling json to struct")
     return RoleCache{}, err
   }
 
-  logger.Logger.Debug("cache", roleCache)
+  logger.LogDebug("cache", roleCache)
   return roleCache, nil
 }
 
@@ -105,10 +105,10 @@ Writes the new ansible role cache to the file
 func WriteRoleCache(appDir string, rolecache RoleCache) error {
   roleCacheFile := filepath.Join(appDir, ansibleRoleDir, roleCacheFileName)
 
-  logger.Logger.Debug("Creating or truncating role cache file", "file", roleCacheFile)
+  logger.LogDebug("Creating or truncating role cache file", "file", roleCacheFile)
   file, err := os.Create(roleCacheFile)
   if err != nil {
-    logger.Logger.Error("Error creating ansible role cache file")
+    logger.LogError("Error creating ansible role cache file")
     return err
   }
   defer file.Close()
@@ -116,9 +116,9 @@ func WriteRoleCache(appDir string, rolecache RoleCache) error {
   encoder := json.NewEncoder(file)
   encoder.SetIndent("", " ")
 
-  logger.Logger.Debug("Writing role cache to file")
+  logger.LogDebug("Writing role cache to file")
   if err := encoder.Encode(rolecache); err != nil {
-    logger.Logger.Error("Error writing role cache to file")
+    logger.LogError("Error writing role cache to file")
     return err
   }
   return nil

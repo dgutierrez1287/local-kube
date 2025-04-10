@@ -28,19 +28,19 @@ func RenderProvisionTemplate(name string, data interface{}) (string, error) {
 
   content, err := provisionTemplatesFS.ReadFile(templateName)
   if err != nil {
-    logger.Logger.Error("Error reading provision template", "template", templateName)
+    logger.LogError("Error reading provision template", "template", templateName)
     return "", err
   }
 
   tmpl, err := template.New(templateName).Parse(string(content))
   if err != nil {
-    logger.Logger.Error("Error parsing provision template", "template", templateName)
+    logger.LogError("Error parsing provision template", "template", templateName)
     return "", err
   }
 
   var result bytes.Buffer
   if err := tmpl.Execute(&result, data); err != nil {
-    logger.Logger.Error("Error rendering provision template", "template", templateName)
+    logger.LogError("Error rendering provision template", "template", templateName)
     return "", err
   }
 
@@ -52,19 +52,19 @@ func RenderVagrantfileTemplate(providerType string, clusterType string, data int
 
   content, err := vagrantfileTemplatesFS.ReadFile(templateName)
   if err != nil {
-    logger.Logger.Error("Error reading vagrantfile template", "template", templateName)
+    logger.LogError("Error reading vagrantfile template", "template", templateName)
     return "", err
   }
 
   tmpl, err := template.New(templateName).Parse(string(content))
   if err != nil {
-    logger.Logger.Error("Error parsing vagrantfile template", "template", templateName)
+    logger.LogError("Error parsing vagrantfile template", "template", templateName)
     return "", err
   }
 
   var result bytes.Buffer
   if err := tmpl.Execute(&result, data); err != nil {
-    logger.Logger.Error("Error rendering vagrantfile template", "template", templateName)
+    logger.LogError("Error rendering vagrantfile template", "template", templateName)
     return "", err
   }
 

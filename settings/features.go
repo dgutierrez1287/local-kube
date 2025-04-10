@@ -56,56 +56,56 @@ func (features *ClusterFeatures) SetDefaults(clusterType string, vip string) err
 
   // error checking
   if clusterType == "ha" && !features.KubeVipEnable {
-    logger.Logger.Error("Error you should enable KubeVip, for ha clusters")
+    logger.LogError("Error you should enable KubeVip, for ha clusters")
     return errors.New("ha cluster, but kubevip not enabled")
   }
 
   if features.KubeVipEnable && vip == "" {
-    logger.Logger.Error("Error the vip cannot be empty with kubevip enabled")
+    logger.LogError("Error the vip cannot be empty with kubevip enabled")
     return errors.New("kubevip enabled but no vip provided")
   }
 
   // Kube Version defaults
   if features.KubeVersion == "" {
     features.KubeVersion = featuresDefaults.KubeVersion
-    logger.Logger.Debug("No Kubenetes version supplied, setting default", "version", featuresDefaults.KubeVersion)
+    logger.LogDebug("No Kubenetes version supplied, setting default", "version", featuresDefaults.KubeVersion)
   }
 
   //KubeVip defaults
   if features.KubeVipEnable && features.KubeVipVersion == "" {
-    logger.Logger.Debug("Kubevip enabled but no version supplied, using default", "version", KubevipDefaultVersion)
+    logger.LogDebug("Kubevip enabled but no version supplied, using default", "version", KubevipDefaultVersion)
     features.KubeVipVersion = KubevipDefaultVersion
   }
 
   // Cni Controller defaults
   if features.CniController == "" {
     features.CniController = featuresDefaults.CniController
-    logger.Logger.Debug("No cni controller supplied, setting default", "cni", featuresDefaults.CniController)
+    logger.LogDebug("No cni controller supplied, setting default", "cni", featuresDefaults.CniController)
 
   } else {
     if features.CniController == "cilium" {
-      logger.Logger.Debug("Cni controller supplied", "controller", features.CniController, "managed", features.ManagedCniController)
+      logger.LogDebug("Cni controller supplied", "controller", features.CniController, "managed", features.ManagedCniController)
 
       if features.CniControllerVersion == "" {
-        logger.Logger.Debug("Cni Controller version not set, using default", "controller", features.CniController, "version", CiliumDefaultVersion)
+        logger.LogDebug("Cni Controller version not set, using default", "controller", features.CniController, "version", CiliumDefaultVersion)
         features.CniControllerVersion = CiliumDefaultVersion
       }     
 
       if features.CiliumCliVersion == "" {
-        logger.Logger.Debug("Cni is Cilium and cli version is not set, using default", "cliVersion", CiliumCliDefaultVersion)
+        logger.LogDebug("Cni is Cilium and cli version is not set, using default", "cliVersion", CiliumCliDefaultVersion)
         features.CiliumCliVersion = CiliumCliDefaultVersion
       }
 
     } else if features.CniController == "calico" {
-      logger.Logger.Debug("Cni controller supplied", "controller", features.CniController, "managed", features.ManagedCniController)
+      logger.LogDebug("Cni controller supplied", "controller", features.CniController, "managed", features.ManagedCniController)
 
       if features.CniControllerVersion == "" {
-        logger.Logger.Debug("Cni Controller version not set, using default", "controller", features.CniController, "version", CalicoDefaultVersion)
+        logger.LogDebug("Cni Controller version not set, using default", "controller", features.CniController, "version", CalicoDefaultVersion)
         features.CniControllerVersion = CalicoDefaultVersion
       }
 
     } else {
-      logger.Logger.Error("Error cni controller is not supported", "controller", features.CniController)
+      logger.LogError("Error cni controller is not supported", "controller", features.CniController)
       return errors.New("cni controller is not supported")
     }
   }
@@ -113,18 +113,18 @@ func (features *ClusterFeatures) SetDefaults(clusterType string, vip string) err
   // Ingress Controller defaults
   if features.IngressController == "" {
     features.IngressController = featuresDefaults.IngressController
-    logger.Logger.Debug("No ingress controller supplied, setting default", "ingress", featuresDefaults.IngressController)
+    logger.LogDebug("No ingress controller supplied, setting default", "ingress", featuresDefaults.IngressController)
   }
 
   // Storage Controller defaults
   if features.StorageController == "" {
     features.StorageController = featuresDefaults.StorageController
-    logger.Logger.Debug("No storage controller supplied, setting default", "storage", featuresDefaults.StorageController)
+    logger.LogDebug("No storage controller supplied, setting default", "storage", featuresDefaults.StorageController)
   } else {
-    logger.Logger.Debug("Storage controller supplied", "controller", features.StorageController, "managed", features.ManagedStorageController)
+    logger.LogDebug("Storage controller supplied", "controller", features.StorageController, "managed", features.ManagedStorageController)
 
     if features.StorageControllerVersion == "" && features.StorageController == "longhorn"{
-      logger.Logger.Debug("No storage controller version supplied settings default")
+      logger.LogDebug("No storage controller version supplied settings default")
       features.StorageControllerVersion = LonghornDefaultVersion
     }
   }

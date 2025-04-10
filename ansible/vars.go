@@ -91,31 +91,31 @@ func GenerateVarsFile(appDir string, clusterName string, clusterType string,
   // set up settings used to build
   // the variables
   if clusterType == "ha" {
-    logger.Logger.Debug("setting some variables for ha cluster")
+    logger.LogDebug("setting some variables for ha cluster")
 
     fileName = fmt.Sprintf("vars-%s.yml", nodeType)
     haCluster = true
   } else {
-    logger.Logger.Debug("Setting some variables for single node cluster")
+    logger.LogDebug("Setting some variables for single node cluster")
 
     fileName = "vars.yml"
     haCluster = false
   }
 
-  logger.Logger.Debug("vars file name being rendered is", "filename", fileName)
+  logger.LogDebug("vars file name being rendered is", "filename", fileName)
 
-  logger.Logger.Debug("Getting general variables")
+  logger.LogDebug("Getting general variables")
   generalVars := getGeneralVars(appSettings, haCluster, useIps, nodeType, clusterName)
-  logger.Logger.Debug("Getting kubevip variables")
+  logger.LogDebug("Getting kubevip variables")
   kubevipVars := getKubeVipVars(features, appSettings.Clusters[clusterName].Vip)
-  logger.Logger.Debug("Getting cilium variables")
+  logger.LogDebug("Getting cilium variables")
   ciliumVars := getCiliumVars(features)
-  logger.Logger.Debug("Getting calico variables")
+  logger.LogDebug("Getting calico variables")
   calicoVars := getCalicoVars(features)
-  logger.Logger.Debug("Getting longhorn variables")
+  logger.LogDebug("Getting longhorn variables")
   longhornVars := getLonghornVars(features)
 
-  logger.Logger.Debug("Merging all variables for marshaling to file")
+  logger.LogDebug("Merging all variables for marshaling to file")
   vars := MergedVars{
     GeneralVars: generalVars,
     KubeVipVars: kubevipVars,
@@ -126,7 +126,7 @@ func GenerateVarsFile(appDir string, clusterName string, clusterType string,
 
   yamlData, err := yaml.Marshal(&vars)
   if err != nil {
-    logger.Logger.Error("Error marshaling variable data to yaml")
+    logger.LogError("Error marshaling variable data to yaml")
     return err
   }
 
@@ -134,7 +134,7 @@ func GenerateVarsFile(appDir string, clusterName string, clusterType string,
   file, err := os.Create(path)
 
   if err != nil {
-    logger.Logger.Error("Error creating vars file", "path", path)
+    logger.LogError("Error creating vars file", "path", path)
     return err
   }
 
@@ -142,13 +142,13 @@ func GenerateVarsFile(appDir string, clusterName string, clusterType string,
 
   _, err = file.WriteString("---\n")
   if err != nil {
-    logger.Logger.Error("Error writing the yaml doc start marker")
+    logger.LogError("Error writing the yaml doc start marker")
     return err
   }
 
   _, err = file.Write(yamlData)
   if err != nil {
-    logger.Logger.Error("Error writing out vars content to file")
+    logger.LogError("Error writing out vars content to file")
     return err
   }
   return nil 
@@ -180,7 +180,7 @@ func getGeneralVars(appSettings settings.Settings, haCluster bool,
     nodePurpose = ""
   }
 
-  logger.Logger.Debug("Generating general variables")
+  logger.LogDebug("Generating general variables")
   vars.KubeVersion = features.KubeVersion
   vars.HaCluster = haCluster
   vars.IsLeadNode = isLeadNode
@@ -201,11 +201,11 @@ func getKubeVipVars(features settings.ClusterFeatures, vip string) KubeVipVars {
   var vars KubeVipVars 
 
   if !features.KubeVipEnable {
-    logger.Logger.Debug("Kubevip is not enabled, not setting kubevip settings")
+    logger.LogDebug("Kubevip is not enabled, not setting kubevip settings")
     return vars
   }
 
-  logger.Logger.Debug("Kubevip is enabled, setting kubevip settings")
+  logger.LogDebug("Kubevip is enabled, setting kubevip settings")
   vars.Vip = vip
   vars.Version = features.KubeVipVersion
   vars.Enable = true
@@ -218,11 +218,11 @@ func getCiliumVars(features settings.ClusterFeatures) CiliumVars {
   var vars CiliumVars
   
   if features.CniController != "cilium" {
-    logger.Logger.Debug("CniController is not cilium, not setting cilium settings")
+    logger.LogDebug("CniController is not cilium, not setting cilium settings")
     return vars
   }
 
-  logger.Logger.Debug("CniController is cilium, setting the cilum settings")
+  logger.LogDebug("CniController is cilium, setting the cilum settings")
   vars.Version = features.CniControllerVersion
   vars.CliVersion = features.CiliumCliVersion
   vars.Install = features.ManagedCniController
@@ -236,11 +236,11 @@ func getCalicoVars(features settings.ClusterFeatures) CalicoVars {
   var vars CalicoVars
 
   if features.CniController != "calico" {
-    logger.Logger.Debug("CniController is not Calico, not setting calico settings")
+    logger.LogDebug("CniController is not Calico, not setting calico settings")
     return vars
   }
 
-  logger.Logger.Debug("CniController is calico, setting the calico settings")
+  logger.LogDebug("CniController is calico, setting the calico settings")
   vars.Version = features.CniControllerVersion
   vars.Install = features.ManagedCniController
 
@@ -252,11 +252,11 @@ func getLonghornVars(features settings.ClusterFeatures) LonghornVars {
   var vars LonghornVars
 
   if features.StorageController != "longhorn" {
-    logger.Logger.Debug("StorageController is not longhorn, not setting longhorn settings")
+    logger.LogDebug("StorageController is not longhorn, not setting longhorn settings")
     return vars
   }
 
-  logger.Logger.Debug("StorageController is Longhorn, setting the longhorn settings")
+  logger.LogDebug("StorageController is Longhorn, setting the longhorn settings")
   vars.Version = features.StorageControllerVersion
   vars.Install = features.ManagedStorageController
 
@@ -271,19 +271,19 @@ func getLonghornVars(features settings.ClusterFeatures) LonghornVars {
 func GetTlsSanList(leadNodes []settings.Machine, kubeVipEnabled bool, kubeVipIp string) []string {
   var tlsSanIps = []string{}
   
-  logger.Logger.Debug("Getting list of ips of control nodes")
+  logger.LogDebug("Getting list of ips of control nodes")
   for _, node := range leadNodes {
-    logger.Logger.Debug("Processing node", "node", node)
-    logger.Logger.Debug("Adding node ip to san list", "ip", node.IpAddress)
+    logger.LogDebug("Processing node", "node", node)
+    logger.LogDebug("Adding node ip to san list", "ip", node.IpAddress)
     tlsSanIps = append(tlsSanIps, node.IpAddress)
   }
 
   if kubeVipEnabled {
-    logger.Logger.Debug("KubeVip is enabled adding to tls san ip list")
+    logger.LogDebug("KubeVip is enabled adding to tls san ip list")
     tlsSanIps = append(tlsSanIps, kubeVipIp)
   }
 
-  logger.Logger.Debug("Tls san ip list", "ips", tlsSanIps)
+  logger.LogDebug("Tls san ip list", "ips", tlsSanIps)
   return tlsSanIps
 }
 
@@ -299,13 +299,13 @@ func GetControlPlaneList(leadNodes []settings.Machine, clusterType string) map[s
 
   for index, node := range leadNodes {
     if index == 0 {
-      logger.Logger.Debug("Adding lead node to control plane list", "name", node.Name)
+      logger.LogDebug("Adding lead node to control plane list", "name", node.Name)
       cpList[node.Name] = ControlNode{
         primary: true,
         ip: node.IpAddress,
       }
     }
-    logger.Logger.Debug("Adding control plane node", "name", node.Name)
+    logger.LogDebug("Adding control plane node", "name", node.Name)
     cpList[node.Name] = ControlNode{
       primary: false,
       ip: node.IpAddress,

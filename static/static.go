@@ -35,12 +35,12 @@ func ListProvisonScripts() ([]string, error) {
 
   files, err := fs.ReadDir(provisionScriptsFs, "provision_scripts")
   if err != nil {
-    logger.Logger.Error("Error reading provision_scripts directory")
+    logger.LogError("Error reading provision_scripts directory")
     return fileNames, err
   }
 
   for _, file := range files {
-    logger.Logger.Debug("Adding script file to list", "file", file.Name())
+    logger.LogDebug("Adding script file to list", "file", file.Name())
     fileNames = append(fileNames, file.Name())
   }
   return fileNames, nil
@@ -55,12 +55,12 @@ func ListRemoteScripts() ([]string, error) {
 
   files, err := fs.ReadDir(remoteScriptsFs, "remote_scripts")
   if err != nil {
-    logger.Logger.Error("Error reading remote_scripts directory")
+    logger.LogError("Error reading remote_scripts directory")
     return fileNames, err
   }
 
   for _, file := range files {
-    logger.Logger.Debug("Adding script file to list", "file", file.Name())
+    logger.LogDebug("Adding script file to list", "file", file.Name())
     fileNames = append(fileNames, file.Name())
   }
   return fileNames, nil
@@ -75,7 +75,7 @@ func ReadProvisionScriptFile(scriptName string) (string, error) {
 
   data, err := provisionScriptsFs.ReadFile(path)
   if err != nil {
-    logger.Logger.Error("Error reading static provision script", "path", path)
+    logger.LogError("Error reading static provision script", "path", path)
     return "", err
   }
   return string(data), nil
@@ -90,7 +90,7 @@ func ReadRemoteScriptFile(scriptName string) (string, error){
 
   data, err := remoteScriptsFs.ReadFile(path)
   if err != nil {
-    logger.Logger.Error("Error reading static remote script", "path", path)
+    logger.LogError("Error reading static remote script", "path", path)
     return "", err
   }
   return string(data), nil

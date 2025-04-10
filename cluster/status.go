@@ -20,51 +20,43 @@ client VagrantClientInterface, machineOutput bool) (string, map[string]string, e
   machineStoppedCount := 0
   var clusterStatus string
 
-  logger.Logger.Debug("Checking status of the cluster")
+  logger.LogDebug("Checking status of the cluster")
 
   statusCmd := client.Status()
 
-  logger.Logger.Debug("statusCmd", statusCmd)
+  logger.LogDebug("statusCmd", statusCmd)
 
   if statusCmd == nil {
-    if !machineOutput {
-      logger.Logger.Error("Error status command is nil")
-      return "", nil, errors.New("status command is not nil")
-    }
+    logger.LogError("Error status command is nil")
+    return "", nil, errors.New("status command is nil")
   }
 
   err := statusCmd.Start()
   if err != nil {
-    if !machineOutput {
-      logger.Logger.Error("Error running the vagrant status command")
-    }
+    logger.LogError("Error running the vagrant status command")
     return "", nil, err
   }
 
   err = statusCmd.Wait()
   if err != nil {
-    if !machineOutput {
-      logger.Logger.Error("Error waiting for vagrant status command")
-    }
+    logger.LogError("Error waiting for vagrant status command")
     return "", nil, err
   }
 
   resp := statusCmd.StatusResponse
-  logger.Logger.Debug("response", resp)
+  logger.LogDebug("response", resp)
 
   respErrors := resp.ErrorResponse
   
   if respErrors.Error != nil {
-    if !machineOutput {
-      logger.Logger.Error("Error getting the vagrant status")
-    }
+    logger.LogError("Error getting the vagrant status")
     return "", nil, respErrors.Error
   }
 
   machineCount = len(resp.Status)
 
   for name, status := range resp.Status {
-    logger.Logger.Debug("machine status", "name", name, "status", status)
+    logger.LogDebug("machine status", "name", name, "status", status)
     switch status {
     case "running":
       machineRunningCount++
@@ -75,7 +67,7 @@ client VagrantClientInterface, machineOutput bool) (string, map[string]string, e
     }
   }
 
-  logger.Logger.Debug("machineCount", machineCount, "running", machineRunningCount, "paused", machinePauseCount, "poweroff", machineStoppedCount)
+  logger.LogDebug("machineCount", machineCount, "running", machineRunningCount, "paused", machinePauseCount, "poweroff", machineStoppedCount)
   if machineCount == machineRunningCount {
     clusterStatus = "running"
   } else if machineCount == machinePauseCount {
@@ -86,7 +78,7 @@ client VagrantClientInterface, machineOutput bool) (string, map[string]string, e
     clusterStatus = "patially_running"
   }
 
-  logger.Logger.Debug("clusterStatus", clusterStatus)
+  logger.LogDebug("clusterStatus", clusterStatus)
   return clusterStatus, resp.Status, nil
 }
 
