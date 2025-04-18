@@ -26,6 +26,7 @@ var scriptsDirs = []string {
 var mainDirs = []string {
   "ansible",
   "scripts",
+  "logs",
   "kubeconfig",
   "settings",
 }
