@@ -1,9 +1,16 @@
 package settings
 
+import (
+	"fmt"
+
+	"github.com/dgutierrez1287/local-kube/logger"
+)
+
 /*
   Cluster - Settings for a cluster
 */
 type Cluster struct {
+  KubeConfigName string             `json:"kubeconfigName,omitempty"`     // The name for the cluster in kubeconfig (if empty cluster name is used)
   Vip string                        `json:"vip,omitempty"`                // The vip for the kubernetes cluster
   ClusterType string                `json:"clusterType,omitempty"`        // (single or ha) the type of cluster
   ProviderName string               `json:"providerName,omitempty"`       // The name of the provider that the cluster uses
@@ -37,6 +44,39 @@ func (cluster Cluster) GetSecondaryControlNodeNames() []string {
     names = append(names, node.Name)
   }
   return names
+}
+
+/*
+Gets a list of all the machine names in the cluster
+*/
+func (cluster Cluster) GetMachineNameList() []string {
+  machineNameList := []string{}
+
+  for _, machine := range(cluster.Leaders) {
+    machineNameList = append(machineNameList, machine.Name)
+  }
+
+  for _, machine := range(cluster.Workers) {
+    machineNameList = append(machineNameList, machine.Name)
+  }
+  
+  return machineNameList
+}
+
+/*
+Gets the server url for the cluster based on if 
+kubevip is enabled and if the cluster is ha or single
+*/
+func (cluster Cluster) GetServerUrl() string {
+
+  if cluster.ClusterFeatures.KubeVipEnable {
+    logger.LogDebug("KubeVip is enabled returning the server url using kubevip")
+    return fmt.Sprintf("https://%s:6443", cluster.Vip)
+  }
+
+  logger.LogDebug("Returning the lead node ip since kubevip is not enabled")
+  leaderIp := cluster.Leaders[0].IpAddress
+  return fmt.Sprintf("https://%s:6443", leaderIp)
 }
 
 /*
