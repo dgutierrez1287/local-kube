@@ -304,11 +304,12 @@ func GetControlPlaneList(leadNodes []settings.Machine, clusterType string) map[s
         primary: true,
         ip: node.IpAddress,
       }
-    }
-    logger.LogDebug("Adding control plane node", "name", node.Name)
-    cpList[node.Name] = ControlNode{
-      primary: false,
-      ip: node.IpAddress,
+    } else {
+      logger.LogDebug("Adding control plane node", "name", node.Name)
+      cpList[node.Name] = ControlNode{
+        primary: false,
+        ip: node.IpAddress,
+      }
     }
   }
   return cpList
