@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 
 	vagrant "github.com/bmatcuk/go-vagrant"
 	"github.com/dgutierrez1287/local-kube/logger"
@@ -15,7 +16,15 @@ This will spin up a Cluster but will not run any ansible
 provisioning
 */
 func ClusterUp(appDir string, clusterName string, 
-client VagrantClientInterface, machineOutput bool) (map[string]*vagrant.VMInfo ,error) {
+machineOutput bool) (map[string]*vagrant.VMInfo ,error) {
+  clusterDir := filepath.Join(appDir, clusterName)
+
+  logger.LogDebug("Getting vagrant client")
+  client, err := NewVagrantClient(clusterDir)
+  if err != nil {
+    logger.LogError("Error getting vagrant client")
+    return nil, err
+  }
 
   logger.LogDebug("Bringing up the cluster", "name", clusterName)
 
@@ -30,7 +39,7 @@ client VagrantClientInterface, machineOutput bool) (map[string]*vagrant.VMInfo ,
     return nil, errors.New("up command is nil")
   }
 
-  err := upCmd.Start()
+  err = upCmd.Start()
   if err != nil {
     logger.LogError("Error running the vagrant up command")
     return nil, err
@@ -60,35 +69,23 @@ This will ssh to the ansible(lead) node in the cluster and run a provision scrip
 that will run ansible for a given cluster type
 */
 func ClusterProvision(appDir string, clusterName string,
-client VagrantClientInterface, appSettings settings.Settings, machineOutput bool) error {
+appSettings settings.Settings, machineOutput bool, debug bool) error {
+  clusterDir := filepath.Join(appDir, clusterName)
+  cmdStr := ""
 
   clusterType := appSettings.Clusters[clusterName].ClusterType
   vagrantNodeName := appSettings.Clusters[clusterName].GetAnsibleNodeVagrantName()
-  cmdStr := fmt.Sprintf("bash /scripts/%s-provision.sh", clusterType)
-
-  logger.LogDebug("Getting Vagrant SSH configuration for ansible node", "name", vagrantNodeName)
-
-  sshCmd := client.SshConfig()
-  sshCmd.Host = vagrantNodeName
-
-  if sshCmd == nil {
-    logger.LogError("Ssh config command is nil")
-    return errors.New("ssh config command is nil")
+  if debug {
+    cmdStr = fmt.Sprintf("bash /scripts/%s-provision.sh debug", clusterType)
+  } else {
+    cmdStr = fmt.Sprintf("bash /scripts/%s-provision.sh info", clusterType)
   }
 
-  err := sshCmd.Run()
+  sshConfig, err := GetSshConfigs(clusterDir, vagrantNodeName)
   if err != nil {
-    logger.LogError("Error running the ssh config command")
+    logger.LogError("Error getting vagrant ssh config")
     return err
   }
-
-  configs := sshCmd.Configs
-  if len(configs) == 0 {
-    logger.LogError("Error ssh configs are empty")
-    return errors.New("ssh configs are empty")
-  }
-
-  sshConfig := configs[vagrantNodeName]
 
   sshArgs := []string {
     "-i", sshConfig.IdentityFile,
@@ -98,6 +95,8 @@ client VagrantClientInterface, appSettings settings.Settings, machineOutput bool
     fmt.Sprintf("%s@%s", sshConfig.User, sshConfig.HostName),
     cmdStr,
   }
+
+  sshArgs = append(sshArgs, cmdStr)
 
   logger.LogDebug("ssh args", "args", sshArgs)
 
@@ -117,7 +116,15 @@ client VagrantClientInterface, appSettings settings.Settings, machineOutput bool
 This will destroy a given Cluster
 */
 func ClusterDown(appDir string, clusterName string, 
-client VagrantClientInterface, machineOutput bool) error {
+machineOutput bool) error {
+  clusterDir := filepath.Join(appDir, clusterName)
+
+  logger.LogDebug("Getting vagrant client")
+  client, err := NewVagrantClient(clusterDir)
+  if err != nil {
+    logger.LogError("Error getting vagrant client")
+    return err
+  }
   
   logger.LogDebug("Destroying the cluster", "name", clusterName)
 
@@ -130,7 +137,7 @@ client VagrantClientInterface, machineOutput bool) error {
     return errors.New("destroy command is nil")
   }
 
-  err := destroyCmd.Start()
+  err = destroyCmd.Start()
   if err != nil {
     logger.LogError("Error running the vagrant destroy command")
     return err

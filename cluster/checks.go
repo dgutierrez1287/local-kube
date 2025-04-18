@@ -2,6 +2,7 @@ package cluster
 
 import (
 	"errors"
+	"path/filepath"
 
 	"github.com/dgutierrez1287/local-kube/logger"
 )
@@ -23,9 +24,10 @@ created - if the cluster has any machines from it that are
 in any state
 */
 func CheckForExistingCluster(appDir string, clusterName string, 
-client VagrantClientInterface, machineOutput bool) (bool, string, error){
+machineOutput bool) (bool, string, error){
   var dirExists bool
   machineCreated := false
+  clusterDir := filepath.Join(appDir, clusterName)
 
   logger.LogDebug("checking if any cluster currently exists")
 
@@ -40,6 +42,13 @@ client VagrantClientInterface, machineOutput bool) (bool, string, error){
   if !dirExists {
     logger.LogDebug("cluster directory doesnt exist there is no cluster present")
     return false, "", nil
+  }
+
+  logger.LogDebug("Getting the vagrant client")
+  client, err := NewVagrantClient(clusterDir)
+  if err != nil {
+    logger.LogError("Error getting vagrant client")
+    return false, "", err
   }
 
   logger.LogDebug("checking for current cluster that has been created")
