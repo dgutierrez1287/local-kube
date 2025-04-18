@@ -2,10 +2,10 @@ package cluster
 
 import (
 	"errors"
+	"path/filepath"
 
 	"github.com/dgutierrez1287/local-kube/logger"
 )
-
 
 /*
 This will return a more detailed status of all the machines in the cluster
@@ -13,12 +13,20 @@ and also a cluster status, ex if any machines are running the cluster status
 would be running
 */
 func GetDetailedClusterStatus(appDir string, clusterName string, 
-client VagrantClientInterface, machineOutput bool) (string, map[string]string, error) {
+machineOutput bool) (string, map[string]string, error) {
   machineCount := 0
   machineRunningCount := 0
   machinePauseCount := 0
   machineStoppedCount := 0
   var clusterStatus string
+  clusterDir := filepath.Join(appDir, clusterName)
+
+  logger.LogDebug("Getting vagrant client")
+  client, err := NewVagrantClient(clusterDir)
+  if err != nil {
+    logger.LogError("Error getting vagrant client")
+    return "", nil, err
+  }
 
   logger.LogDebug("Checking status of the cluster")
 
@@ -31,7 +39,7 @@ client VagrantClientInterface, machineOutput bool) (string, map[string]string, e
     return "", nil, errors.New("status command is nil")
   }
 
-  err := statusCmd.Start()
+  err = statusCmd.Start()
   if err != nil {
     logger.LogError("Error running the vagrant status command")
     return "", nil, err
