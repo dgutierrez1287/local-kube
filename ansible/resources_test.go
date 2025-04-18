@@ -18,10 +18,10 @@ func TestEmbeddedFile(t *testing.T) {
   assert.NoError(t, err)
 }
 
-/*
- -- Tests --
-*/
 
+/*
+      Tests for GenerateAnsibleHostsFile
+*/
 func TestGenerateAnsibleHostsFileMultiNode(t *testing.T) {
   clusterName := "test"
   clusterType := "ha"
@@ -149,6 +149,9 @@ func TestGenerateAnsibleHostsFileError(t *testing.T) {
   assert.Error(t, err)
 }
 
+/*
+      Tests for RenderBootstrapScript
+*/
 func TestRenderBootstrapScript(t *testing.T) {
   clusterName := "test"
   ansibleVersion := "2.17.5"
@@ -185,6 +188,52 @@ func TestRenderBootstrapScriptErrorWrite(t *testing.T) {
   ansibleVersion := "2.17.5"
 
   err := RenderBootstrapScript(util.MockAppDir, clusterName, ansibleVersion)
+  assert.Error(t, err)
+}
+
+/*
+      Tests for Copy Ansible Roles
+*/
+func CopyAnsibleRolesSuccess(t *testing.T) {
+  clusterName := "test"
+  roleNames := []string{"kube"}
+
+  err := util.MockAppDirSetup()
+  assert.NoError(t, err)
+
+  defer util.MockAppDirCleanup()
+
+  // create directories for tests
+  err = os.MkdirAll(filepath.Join(util.MockAppDir, "ansible-roles", "kube"), 0755)
+  assert.NoError(t, err)
+
+  err = os.MkdirAll(filepath.Join(util.MockAppDir, clusterName, "ansible", "roles"), 0755)
+  assert.NoError(t, err)
+
+  //Run test
+  err = CopyAnsibleRoles(util.MockAppDir, clusterName, roleNames)
+  assert.NoError(t, err)
+  assert.FileExists(t, filepath.Join(util.MockAppDir, clusterName, "ansible", "roles", "kube"))
+}
+
+func CopyAnsibleRolesError(t *testing.T) {
+  clusterName := "test"
+  roleNames := []string{"kube", "doesNotExist"}
+
+  err := util.MockAppDirSetup()
+  assert.NoError(t, err)
+
+  defer util.MockAppDirCleanup()
+
+  // create directories for tests
+  err = os.MkdirAll(filepath.Join(util.MockAppDir, "ansible-roles", "kube"), 0755)
+  assert.NoError(t, err)
+
+  err = os.MkdirAll(filepath.Join(util.MockAppDir, clusterName, "ansible", "roles"), 0755)
+  assert.NoError(t, err)
+
+  //Run test
+  err = CopyAnsibleRoles(util.MockAppDir, clusterName, roleNames)
   assert.Error(t, err)
 }
 

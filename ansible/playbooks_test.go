@@ -10,6 +10,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+/*
+      Tests for RenderPlaybook
+*/
+
 func TestRenderPlaybookWorkerNode(t *testing.T) {
   clusterName := "test"
 
@@ -18,7 +22,7 @@ func TestRenderPlaybookWorkerNode(t *testing.T) {
 
   defer util.MockAppDirCleanup()
 
-  err = os.MkdirAll(filepath.Join(util.MockAppDir, clusterName, "playbooks"), 0755)
+  err = os.MkdirAll(filepath.Join(util.MockAppDir, clusterName, "ansible", "playbooks"), 0755)
   assert.NoError(t, err)
 
   err = RenderPlaybook(util.MockAppDir, clusterName, "worker-nodes", "ha", "worker")
@@ -55,7 +59,7 @@ func TestRenderPlaybookSingleNodeCluster(t *testing.T) {
 
   defer util.MockAppDirCleanup()
 
-  err = os.MkdirAll(filepath.Join(util.MockAppDir, clusterName, "playbooks"), 0755)
+  err = os.MkdirAll(filepath.Join(util.MockAppDir, clusterName, "ansible", "playbooks"), 0755)
   assert.NoError(t, err)
 
   err = RenderPlaybook(util.MockAppDir, clusterName, "localhost", "single", "")
