@@ -14,9 +14,10 @@ import (
   Settings - Local kube settings
 */
 type Settings struct {
-  ProvisionSettings ProvisionSettings   `json:"provision"`  // Provision settings
-  Providers map[string]Provider         `json:"providers"`  // Providers
-  Clusters map[string]Cluster           `json:"clusters"`   // Clusters
+  KubeConfigPath string                 `json:"kubeconfigPath"` // path to kubeconfig path
+  ProvisionSettings ProvisionSettings   `json:"provision"`      // Provision settings
+  Providers map[string]Provider         `json:"providers"`      // Providers
+  Clusters map[string]Cluster           `json:"clusters"`       // Clusters
 }
 
 /* 
@@ -72,6 +73,7 @@ func CreateDefaultSettingsFile(appDir string) error {
   }
 
   emptySettings := Settings{
+    KubeConfigPath: "~/.kube/config",
     ProvisionSettings: ProvisionSettings{
       AnsibleVersion: "2.17.6",
       AnsibleRoles: defaultAnsibleRoles,
