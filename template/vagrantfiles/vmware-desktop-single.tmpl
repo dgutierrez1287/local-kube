@@ -19,6 +19,9 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "ansible/resources", "/vagrant/ansible-resources",
     disabled: false
 
+  config.vm.synced_folder "logs", "/vagrant/logs",
+    disabled: false
+
   config.vm.synced_folder "kubeconfig", "/vagrant/kubeconfig",
     disabled: false
 
@@ -40,19 +43,24 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", inline: <<-SHELL
+    exec > /vagrant/logs/setup.txt 2>&1
+
     apt update
     apt upgrade -y
 
     # expand the disk if needed
     bash /provision/disk-expand.sh
 
+    # setup dns nameservers
+    bash /provision/resolv.sh
+
     # install yq (needed for some local scripts)
     bash /provision/install-yq.sh
 
     # bootstrap the system and install the needed version of ansible
-    bash /provision/ansible-bootstrap.sh
+    bash /provision/bootstrap.sh 
 
     # setup hosts file 
-    bash /provision/setup-hostsfile.sh single
+    bash /provision/setup-hostsfile.sh single 
   SHELL
 end

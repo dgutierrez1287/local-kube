@@ -21,6 +21,9 @@ Vagrant.configure("2") do |config|
     lcn.vm.synced_folder "ansible/resources", "/vagrant/ansible-resources",
       disabled: false
 
+    lcn.vm.synced_folder "logs", "/vagrant/logs",
+      disabled: false
+
     lcn.vm.synced_folder "kubeconfig", "/vagrant/kubeconfig",
       disabled: false
 
@@ -40,17 +43,22 @@ Vagrant.configure("2") do |config|
     end
 
     lcn.vm.provision "shell", inline: <<-SHELL
+    exec > /vagrant/logs/${hostname}-setup.txt 2>&1
+
     apt update
     apt upgrade -y
 
     # expand the disk if needed
     bash /provision/disk-expand.sh
 
+    # setup dns nameservers
+    bash /provision/resolv.sh
+
     # install yq (needed for some local scripts)
     bash /provision/install-yq.sh
 
     # bootstrap the system and install the needed version of ansible
-    bash /provision/ansible-bootstrap.sh
+    bash /provision/bootstrap.sh
 
     # set up /etc/hosts file to allow needed connections to other machines
     bash /provision/setup-hostsfile.sh ha
@@ -72,6 +80,9 @@ Vagrant.configure("2") do |config|
     cn.vm.synced_folder "scripts/remote", "/scripts",
       disabled: false 
 
+    cn.vm.synced_folder "logs", "/vagrant/logs",
+      disabled: false
+
     cn.vm.synced_folder "settings", "/vagrant/settings",
       disabled: false
     
@@ -82,11 +93,16 @@ Vagrant.configure("2") do |config|
     end
 
     cn.vm.provision "shell", inline: <<-SHELL
+    exec > /vagrant/logs/${hostname}-setup.txt 2>&1
+
     apt update
     apt upgrade -y
 
     # expand the disk if needed
     bash /provision/disk-expand.sh
+
+    # setup dns nameservers
+    bash /provision/resolv.sh
 
     # install yq (needed for some local scripts)
     bash /provision/install-yq.sh
@@ -111,6 +127,9 @@ Vagrant.configure("2") do |config|
     w.vm.synced_folder "scripts/remote", "/scripts",
       disabled: false
 
+    w.vm.synced_folder "logs", "/vagrant/logs",
+      disabled: false
+
     w.vm.synced_folder "settings", "/vagrant/settings",
       disabled: false
 
@@ -121,11 +140,16 @@ Vagrant.configure("2") do |config|
     end 
 
     w.vm.provision "shell", inline: <<-SHELL
+    exec > /vagrant/logs/${hostname}-setup.txt 2>&1
+
     apt update
     apt upgrade -y
 
     # expand the disk if need
     bash /provision/disk-expand.sh
+
+    # setup dns nameservers
+    bash /provision/resolv.sh
 
     # install yq (needed for some local scripts)
     bash /provision/install-yq.sh
