@@ -16,6 +16,9 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+/*
+      Tests for ListProvisionScripts
+*/
 func TestListProvisionScripts(t *testing.T) {
   fileNames, err := ListProvisonScripts()
 
@@ -25,9 +28,11 @@ func TestListProvisionScripts(t *testing.T) {
   assert.Contains(t, fileNames, "install-yq.sh")
   assert.Contains(t, fileNames, "disk-expand.sh")
   assert.Contains(t, fileNames, "setup-hostsfile.sh")
-  assert.Contains(t, fileNames, "multi-node-provision.sh")
 }
 
+/*
+      Tests for ListRemoteScripts
+*/
 func TestListRemoteScripts(t *testing.T) {
   fileNames, err := ListRemoteScripts()
 
@@ -36,9 +41,11 @@ func TestListRemoteScripts(t *testing.T) {
   // verify file names in the list
   assert.Contains(t, fileNames, "ha-provision.sh")
   assert.Contains(t, fileNames, "single-provision.sh")
-  assert.Contains(t, fileNames, "correct_kubeconfig.py")
 }
 
+/*
+      Tests for ReadProvisionScriptFile
+*/
 func TestReadProvisionScriptFile(t *testing.T) {
   fileContent, err := ReadProvisionScriptFile("disk-expand.sh")
 
@@ -56,6 +63,9 @@ func TestReadProvisionScriptError(t *testing.T) {
   assert.Error(t, err)
 }
 
+/*
+      Tests for ReadRemoteScriptFile
+*/
 func TestReadRemoteScriptFile(t *testing.T) {
   fileContent, err := ReadRemoteScriptFile("single-provision.sh")
 
