@@ -1,41 +1,47 @@
 package cluster
 
 import (
-	"context"
 
+  "github.com/stretchr/testify/mock"
 	vagrant "github.com/bmatcuk/go-vagrant"
 )
 
 type MockVagrantClient struct {
-  mockStatus map[string]string 
-}
-
-var _ VagrantClientInterface = (*MockVagrantClient)(nil)
-
-func NewMockVagrantClientStatus(status map[string]string) *MockVagrantClient {
-  return &MockVagrantClient{mockStatus: status}
+  mock.Mock
 }
 
 func (m *MockVagrantClient) Status() *vagrant.StatusCommand {
-  return &vagrant.StatusCommand{
-    BaseCommand: vagrant.BaseCommand{
-      Context: context.Background(),
-    },
-    StatusResponse: vagrant.StatusResponse{
-      Status: m.mockStatus,
-    },
-    
-  }
+	args := m.Called()
+	return args.Get(0).(*vagrant.StatusCommand)
 }
 
 func (m *MockVagrantClient) Up() *vagrant.UpCommand {
-  return &vagrant.UpCommand{}
+	args := m.Called()
+	return args.Get(0).(*vagrant.UpCommand)
 }
 
 func (m *MockVagrantClient) Destroy() *vagrant.DestroyCommand {
-  return &vagrant.DestroyCommand{}
+	args := m.Called()
+	return args.Get(0).(*vagrant.DestroyCommand)
 }
 
 func (m *MockVagrantClient) SshConfig() *vagrant.SSHConfigCommand {
-  return &vagrant.SSHConfigCommand{}
+	args := m.Called()
+	return args.Get(0).(*vagrant.SSHConfigCommand)
+}
+
+
+type MockStatusCommand struct {
+	mock.Mock
+	StatusResponse vagrant.StatusResponse
+}
+
+func (m *MockStatusCommand) Start() error {
+	args := m.Called()
+	return args.Error(0)
+}
+
+func (m *MockStatusCommand) Wait() error {
+	args := m.Called()
+	return args.Error(0)
 }

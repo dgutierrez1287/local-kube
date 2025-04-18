@@ -2,13 +2,15 @@ package cluster
 
 import (
 	"testing"
+  //"os"
+  //"path/filepath"
 
 	"github.com/dgutierrez1287/local-kube/util"
 	"github.com/stretchr/testify/assert"
+  //vagrant "github.com/bmatcuk/go-vagrant"
 )
 
 func TestCheckForExistingClusterNoDir(t *testing.T) {
-  mockStatus := map[string]string{}
   clusterName := "test-cluster"
 
   err := util.MockAppDirSetup()
@@ -16,9 +18,7 @@ func TestCheckForExistingClusterNoDir(t *testing.T) {
 
   defer util.MockAppDirCleanup()
 
-  vagrantClientMock := NewMockVagrantClientStatus(mockStatus)
-
-  status, state, err := CheckForExistingCluster(util.MockAppDir, clusterName, vagrantClientMock, false)
+  status, state, err := CheckForExistingCluster(util.MockAppDir, clusterName, false)
   
   assert.False(t, status)
   assert.Equal(t, state, "")
@@ -37,7 +37,22 @@ func TestCheckForExistingClusterNoDir(t *testing.T) {
 //
 //   defer util.MockAppDirCleanup()
 //
-//   vagrantClientMock := NewMockVagrantClientStatus(mockStatus)
+//   mockClient := new(MockVagrantClient)
+// 	mockStatus := new(MockStatusCommand)
+//
+// 	mockStatus.On("Start").Return(nil)
+// 	mockStatus.On("Wait").Return(nil)
+// 	mockStatus.StatusResponse = vagrant.StatusResponse{
+// 		Status: map[string]string{"default": "running"},
+// 	}
+//
+// 	mockClient.On("Status").Return(mockStatus)
+//
+// 	originalNewClient := NewVagrantClient
+// 	defer func() { NewVagrantClient = originalNewClient }()
+// 	NewVagrantClient = func(dir string) (VagrantClientInterface, error) {
+// 		return mockClient, nil
+// 	}
 //
 //   status, state, err := CheckForExistingCluster(util.MockAppDir, clusterName, vagrantClientMock)
 //
@@ -61,7 +76,6 @@ func TestCheckForExistingClusterNoDir(t *testing.T) {
 //   err = os.Mkdir(filepath.Join(util.MockAppDir, clusterName), 0755)
 //   assert.NoError(t, err)
 //
-//   vagrantClientMock := NewMockVagrantClientStatus(mockStatus)
 //  
 //   status, state, err := CheckForExistingCluster(util.MockAppDir, clusterName, vagrantClientMock)
 //
