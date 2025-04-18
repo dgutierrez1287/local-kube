@@ -9,6 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+
+/*
+      Tests for SettingsValid
+*/
 func TestSettingsValid(t *testing.T) {
 
   clusterName := "test-cluster"
@@ -45,6 +49,10 @@ func TestSettingsNotValid(t *testing.T) {
   assert.False(t, notValid)
 }
 
+/*
+      Tests for CreateDefaultSettingsFile & 
+      ReadSettingsFile
+*/
 func TestCreateDefaultSettingsAndRead(t *testing.T) {
   err := util.MockAppDirSetup()
   assert.NoError(t, err)
@@ -55,6 +63,7 @@ func TestCreateDefaultSettingsAndRead(t *testing.T) {
   settings, err := ReadSettingsFile(util.MockAppDir)
   assert.NoError(t, err)
 
+  assert.Equal(t, settings.KubeConfigPath, "~/.kube/config")
   assert.Contains(t, settings.ProvisionSettings.AnsibleRoles, "kube")
   assert.Equal(t, settings.ProvisionSettings.AnsibleRoles["kube"].LocationType, "git")
   assert.Equal(t, settings.ProvisionSettings.AnsibleRoles["kube"].RefType, "branch")
@@ -65,6 +74,9 @@ func TestCreateDefaultSettingsAndRead(t *testing.T) {
   assert.NoError(t, err)
 }
 
+/*
+      Tests for SettingsExists
+*/
 func TestSettingsExists(t *testing.T) {
   err := util.MockAppDirSetup()
   assert.NoError(t, err)

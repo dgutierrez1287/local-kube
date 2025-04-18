@@ -7,6 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+/*
+      Tests for PreflightCheck
+*/
 func TestPreflightPass(t *testing.T) {
   err := util.MockAppDirSetup()
   assert.NoError(t, err)

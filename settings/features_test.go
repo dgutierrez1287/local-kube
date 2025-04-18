@@ -18,6 +18,10 @@ func TestClusterFeaturesInitialization(t *testing.T) {
   assert.Equal(t, "longhorn", features.StorageController)
 }
 
+
+/*
+      Tests for SetDefaults
+*/
 func TestClusterFeaturesDefaultValues(t *testing.T) {
   features := ClusterFeatures{}
 

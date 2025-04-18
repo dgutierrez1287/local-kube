@@ -19,7 +19,9 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-// Test GetAppDirPath
+/*
+      Tests for GetAppDirPath
+*/
 func TestGetAppDirPath(t *testing.T) {
 	homeDir, err := os.UserHomeDir()
 	require.NoError(t, err)
@@ -28,8 +30,10 @@ func TestGetAppDirPath(t *testing.T) {
 	assert.Equal(t, expectedPath, GetAppDirPath())
 }
 
-// Test DirectoryExists when directory exists
-func TestDirectoryExists_Exists(t *testing.T) {
+/*
+      Tests for TestDirectoryExists
+*/
+func TestDirectoryExistsExists(t *testing.T) {
 	// Create temp directory
 	tempDir := t.TempDir()
 
@@ -37,14 +41,17 @@ func TestDirectoryExists_Exists(t *testing.T) {
 }
 
 // Test DirectoryExists when directory does not exist
-func TestDirectoryExists_NotExists(t *testing.T) {
+func TestDirectoryExistsNotExists(t *testing.T) {
 	nonExistentDir := filepath.Join(os.TempDir(), "does-not-exist-12345")
 
 	assert.False(t, DirectoryExists(nonExistentDir))
 }
 
-// Test CreateDirectory successfully
-func TestCreateDirectory_Success(t *testing.T) {
+
+/*
+      Tests for CreateDirectory
+*/
+func TestCreateDirectorySuccess(t *testing.T) {
 	tempDir := filepath.Join(os.TempDir(), "test-create-dir")
 	defer os.Remove(tempDir) // Cleanup
 
@@ -53,7 +60,6 @@ func TestCreateDirectory_Success(t *testing.T) {
 	assert.DirExists(t, tempDir)
 }
 
-// TestCreateDirectory_Failure tests that CreateDirectory calls os.Exit(123) when it fails
 func TestCreateDirectory_Failure(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("Skipping test since it's running as root.")

@@ -6,6 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+/*
+   Tests for GetSecondaryControlNodeNames
+*/
 func TestGetSecondaryControlNodeNames(t *testing.T) {
 	// Test case where there are more than one leader
 	cluster := Cluster{
@@ -38,6 +41,96 @@ func TestGetSecondaryControlNodeNames_NoSecondary(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+/*
+        Tests for GetMachineNameList
+*/
+func TestGetMachineNameList(t *testing.T) {
+  cluster := Cluster{
+    Leaders: []Machine{
+      {Name: "leader1", IpAddress: "192.168.1.1", Memory: 4, Cpu: 2, DiskSize: "100GB"},
+    },
+    Workers: []Machine{
+      {Name: "worker1", IpAddress: "192.168.1.2", Memory: 4, Cpu: 2, DiskSize: "50GB"},
+    },
+  }
+
+  expected := []string{"leader1", "worker1"}
+  actual := cluster.GetMachineNameList()
+
+  assert.Equal(t, expected, actual)
+}
+
+
+/*
+        Tests for GetServerUrl
+*/
+func TestGetServerUrlVipEnabled(t *testing.T) {
+  cluster := Cluster{
+    Vip: "192.168.1.40",
+    Leaders: []Machine{
+      {Name: "leader1", IpAddress: "192.168.1.1", Memory: 4, Cpu: 2, DiskSize: "100GB"},
+    },
+    ClusterFeatures: &ClusterFeatures{
+      KubeVipEnable: true,
+    },
+  }
+
+  expected := "https://192.168.1.40:6443"
+  actual := cluster.GetServerUrl()
+
+  assert.Equal(t, expected, actual)
+} 
+
+func TestGetServerUrlNoVip(t *testing.T) {
+  cluster := Cluster{
+    Leaders: []Machine{
+      {Name: "leader1", IpAddress: "192.168.1.1", Memory: 4, Cpu: 2, DiskSize: "100GB"},
+    },
+    ClusterFeatures: &ClusterFeatures{
+      KubeVipEnable: false,
+    },
+  }
+
+  expected := "https://192.168.1.1:6443"
+  actual := cluster.GetServerUrl()
+
+  assert.Equal(t, expected, actual)
+}
+
+
+/*
+        Tests for GetAnsibleNodeVagrantName
+*/
+func TestGetAnsibleNodeVagrantNameSingleNode(t *testing.T) {
+  cluster := Cluster{
+    ClusterType: "single",
+  }
+
+  expected := "default"
+  actual := cluster.GetAnsibleNodeVagrantName()
+
+  assert.Equal(t, expected, actual)
+}
+
+func TestGetAnsibleNodeVagrantNameHaCluster(t *testing.T) {
+  cluster := Cluster{
+    ClusterType: "ha",
+    Leaders: []Machine{
+      {Name: "leader1", IpAddress: "192.168.1.1", Memory: 4, Cpu: 2, DiskSize: "100GB"},
+      {Name: "leader2", IpAddress: "192.168.1.2", Memory: 4, Cpu: 2, DiskSize: "50GB"},
+    },
+  }
+
+  expected := "leader1"
+  actual := cluster.GetAnsibleNodeVagrantName()
+
+  assert.Equal(t, expected, actual)
+}
+
+
+/*
+        Tests for GetWorkerNodeNames
+*/
 func TestGetWorkerNodeNames(t *testing.T) {
 	// Test case where there are worker nodes
 	cluster := Cluster{
@@ -67,6 +160,9 @@ func TestGetWorkerNodeNames_NoWorkers(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+/*
+        Tests for GetControlNodeIps
+*/
 func TestGetControlNodeIps(t *testing.T) {
   cluster := Cluster {
     Leaders: []Machine{
@@ -87,6 +183,9 @@ func TestGetControlNodeIps(t *testing.T) {
   assert.Equal(t, ips, verificationArray)
 }
 
+/*
+        Tests for isHA
+*/
 func TestClusterHa(t *testing.T) {
   cluster := Cluster {
     ClusterType: "ha",
